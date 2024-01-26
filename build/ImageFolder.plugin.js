@@ -1,7 +1,7 @@
 /**
  * @name ImageFolder
  * @version 0.1.0
- * @description A BetterDiscord plugin that allows you to save images to a folder for easy access
+ * @description A BetterDiscord plugin that allows you to save and send images from a folder for easy access
  * @author TheLazySquid
  * @authorId 619261917352951815
  * @website https://github.com/TheLazySquid/ImageFolder
@@ -234,15 +234,15 @@ function uploadImage(folderPath) {
             // read the file, and write it to the new path
             fs$1.readFile(file, {}, (err, contents) => {
                 if (err) {
-                    BdApi.UI.showToast(`Error reading file ${file}`, { type: "error" });
+                    BdApi.UI.showToast(`Error reading file ${fileName}`, { type: "error" });
                     return;
                 }
                 fs$1.writeFile(newPath, contents, {}, (err) => {
                     if (err) {
-                        BdApi.UI.showToast(`Error writing file ${file}`, { type: "error" });
+                        BdApi.UI.showToast(`Error writing file ${fileName}`, { type: "error" });
                         return;
                     }
-                    BdApi.UI.showToast(`Image uploaded ${file}`, { type: "success" });
+                    BdApi.UI.showToast(`Image uploaded ${fileName}`, { type: "success" });
                 });
             });
         }

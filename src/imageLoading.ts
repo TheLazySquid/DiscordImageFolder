@@ -112,16 +112,16 @@ export async function uploadImage(folderPath: string) {
         // read the file, and write it to the new path
         fs.readFile(file, {}, (err, contents) => {
             if (err) {
-                BdApi.UI.showToast(`Error reading file ${file}`, {type: "error"});
+                BdApi.UI.showToast(`Error reading file ${fileName}`, {type: "error"});
                 return;
             }
     
             fs.writeFile(newPath, contents, {}, (err) => {
                 if (err) {
-                    BdApi.UI.showToast(`Error writing file ${file}`, {type: "error"});
+                    BdApi.UI.showToast(`Error writing file ${fileName}`, {type: "error"});
                     return;
                 }
-                BdApi.UI.showToast(`Image uploaded ${file}`, {type: "success"});
+                BdApi.UI.showToast(`Image uploaded ${fileName}`, {type: "success"});
             });
         });
     }
