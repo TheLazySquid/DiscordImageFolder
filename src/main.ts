@@ -1,11 +1,10 @@
-import 'lazypluginlib/types.d.ts';
-
 // @ts-ignore
 import imagePlusOutline from '../assets/image-plus-outline.svg'
 // @ts-ignore
 import styles from './styles.css'
 import imageTab from './imageTab.jsx'
 import { buttonsModule, expressionModule, pickerModule } from './modules.js';
+import { onStart, onStop } from 'lazypluginlib'
 
 onStart(() => {
     BdApi.DOM.addStyle("imgFolderStyles", styles)

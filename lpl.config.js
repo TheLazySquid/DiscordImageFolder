@@ -20,7 +20,7 @@ export default {
     typescript({
       jsx: "react",
       compilerOptions: {
-        target: "es6"
+        target: "es2022"
       }
     }),
     string({ include: [ '**/*.css', '**/*.svg' ] }),

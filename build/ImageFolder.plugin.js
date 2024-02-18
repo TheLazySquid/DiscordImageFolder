@@ -1,6 +1,6 @@
 /**
  * @name ImageFolder
- * @version 0.1.0
+ * @version 0.1.1
  * @description A BetterDiscord plugin that allows you to save and send images from a folder for easy access
  * @author TheLazySquid
  * @authorId 619261917352951815
@@ -42,52 +42,10 @@ module.exports = class {
                 return delCallback;
             }
         }
-        
+
         const onStart = createCallbackHandler("start");
         const onStop = createCallbackHandler("stop");
-        const onSwitch = createCallbackHandler("onSwitch");
 
-        const watchElement = (selector, callback) => {
-            let observer = new MutationObserver((mutations) => {
-                for (let mutation of mutations) {
-                    if (mutation.addedNodes.length) {
-                        for (let node of mutation.addedNodes) {
-                            if (node.matches && node.matches(selector)) {
-                                callback(node);
-                            }
-
-                            if (node.querySelectorAll) {
-                                for (let element of node.querySelectorAll(selector)) {
-                                    callback(element);
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            let startDispose = onStart(() => {
-                observer.observe(document.body, { childList: true, subtree: true });
-
-                for(let element of document.querySelectorAll(selector)) {
-                    callback(element);
-                }
-            });
-
-            let stopDispose = onStop(() => {
-                observer.disconnect();
-            });
-
-            return () => {
-                observer.disconnect();
-                startDispose();
-                stopDispose();
-            }
-        }
-
-        const setSettingsPanel = (el) => {
-            this.getSettingsPanel = () => el;
-        }
 'use strict';
 
 var imagePlusOutline = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\"><path d=\"M13 19C13 19.7 13.13 20.37 13.35 21H5C3.9 21 3 20.11 3 19V5C3 3.9 3.9 3 5 3H19C20.11 3 21 3.9 21 5V13.35C20.37 13.13 19.7 13 19 13V5H5V19H13M13.96 12.29L11.21 15.83L9.25 13.47L6.5 17H13.35C13.75 15.88 14.47 14.91 15.4 14.21L13.96 12.29M20 18V15H18V18H15V20H18V23H20V20H23V18H20Z\" /></svg>";
@@ -104,33 +62,6 @@ var FolderArrowLeftOuline = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\
 
 var Pencil = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z\" /></svg>";
 
-/******************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */
-/* global Reflect, Promise */
-
-
-function __awaiter(thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-}
-
 const fs$1 = require('fs');
 const { join: join$1, basename } = require('path');
 const mimeTypes = {
@@ -140,147 +71,139 @@ const mimeTypes = {
     'webp': 'image/webp',
 };
 const imgFolderPath = join$1(__dirname, 'imageFolder');
-function pathToSrc(path) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return new Promise((resolve, reject) => {
-            fs$1.readFile(join$1(imgFolderPath, path), 'latin1', (err, contents) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                let ext = basename(path).split('.')[1];
-                const mime = mimeTypes[ext];
-                resolve(`data:${mime};base64,${btoa(contents)}`);
-            });
-        });
-    });
-}
-function loadFolder(path) {
-    return __awaiter(this, void 0, void 0, function* () {
-        path = path.replace(/\\/g, '/');
-        if (!fs$1.existsSync(join$1(imgFolderPath))) {
-            fs$1.mkdirSync(join$1(imgFolderPath));
-        }
-        return new Promise((resolve, reject) => {
-            const folderPath = join$1(imgFolderPath, path);
-            if (!fs$1.existsSync(folderPath)) {
-                return reject("Folder does not exist");
+async function pathToSrc(path) {
+    return new Promise((resolve, reject) => {
+        fs$1.readFile(join$1(imgFolderPath, path), 'latin1', (err, contents) => {
+            if (err) {
+                reject(err);
+                return;
             }
-            fs$1.readdir(folderPath, {}, (err, files) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                let images = [];
-                let folders = [];
-                let pending = files.length;
-                if (!pending) {
-                    resolve({
-                        path: path,
-                        folders: folders,
-                        images: images
-                    });
-                }
-                // read all the files
-                for (const file of files) {
-                    const filePath = join$1(folderPath, file);
-                    fs$1.stat(filePath, {}, (err, stat) => __awaiter(this, void 0, void 0, function* () {
-                        if (err) {
-                            reject(err);
-                            return;
-                        }
-                        if (stat.isDirectory()) {
-                            folders.push(file);
-                        }
-                        else {
-                            images.push({
-                                name: file,
-                                src: yield pathToSrc(join$1(path, file))
-                            });
-                        }
-                        if (!--pending) {
-                            resolve({
-                                path: path,
-                                folders: folders,
-                                images: images
-                            });
-                        }
-                    }));
-                }
-            });
+            let ext = basename(path).split('.')[1];
+            const mime = mimeTypes[ext];
+            resolve(`data:${mime};base64,${btoa(contents)}`);
         });
     });
 }
-function uploadImage(folderPath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let result = yield BdApi.UI.openDialog({
-            mode: "open",
-            filters: [
-                {
-                    name: "Images",
-                    extensions: ["png", "jpg", "jpeg", "webp"]
-                }
-            ],
-            title: "Upload an image",
-            message: "Select an image to upload",
-            multiSelections: true
-        });
-        if (!result)
-            return;
-        // @ts-ignore
-        for (let file of result.filePaths) {
-            let fileName = basename(file);
-            let newPath = join$1(imgFolderPath, folderPath, fileName);
-            // read the file, and write it to the new path
-            fs$1.readFile(file, {}, (err, contents) => {
-                if (err) {
-                    BdApi.UI.showToast(`Error reading file ${fileName}`, { type: "error" });
-                    return;
-                }
-                fs$1.writeFile(newPath, contents, {}, (err) => {
+async function loadFolder(path) {
+    path = path.replace(/\\/g, '/');
+    if (!fs$1.existsSync(join$1(imgFolderPath))) {
+        fs$1.mkdirSync(join$1(imgFolderPath));
+    }
+    return new Promise((resolve, reject) => {
+        const folderPath = join$1(imgFolderPath, path);
+        if (!fs$1.existsSync(folderPath)) {
+            return reject("Folder does not exist");
+        }
+        fs$1.readdir(folderPath, {}, (err, files) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            let images = [];
+            let folders = [];
+            let pending = files.length;
+            if (!pending) {
+                resolve({
+                    path: path,
+                    folders: folders,
+                    images: images
+                });
+            }
+            // read all the files
+            for (const file of files) {
+                const filePath = join$1(folderPath, file);
+                fs$1.stat(filePath, {}, async (err, stat) => {
                     if (err) {
-                        BdApi.UI.showToast(`Error writing file ${fileName}`, { type: "error" });
+                        reject(err);
                         return;
                     }
-                    BdApi.UI.showToast(`Image uploaded ${fileName}`, { type: "success" });
+                    if (stat.isDirectory()) {
+                        folders.push(file);
+                    }
+                    else {
+                        images.push({
+                            name: file,
+                            src: await pathToSrc(join$1(path, file))
+                        });
+                    }
+                    if (!--pending) {
+                        resolve({
+                            path: path,
+                            folders: folders,
+                            images: images
+                        });
+                    }
                 });
-            });
-        }
+            }
+        });
     });
 }
+async function uploadImage(folderPath) {
+    let result = await BdApi.UI.openDialog({
+        mode: "open",
+        filters: [
+            {
+                name: "Images",
+                extensions: ["png", "jpg", "jpeg", "webp"]
+            }
+        ],
+        title: "Upload an image",
+        message: "Select an image to upload",
+        multiSelections: true
+    });
+    if (!result)
+        return;
+    // @ts-ignore
+    for (let file of result.filePaths) {
+        let fileName = basename(file);
+        let newPath = join$1(imgFolderPath, folderPath, fileName);
+        // read the file, and write it to the new path
+        fs$1.readFile(file, {}, (err, contents) => {
+            if (err) {
+                BdApi.UI.showToast(`Error reading file ${fileName}`, { type: "error" });
+                return;
+            }
+            fs$1.writeFile(newPath, contents, {}, (err) => {
+                if (err) {
+                    BdApi.UI.showToast(`Error writing file ${fileName}`, { type: "error" });
+                    return;
+                }
+                BdApi.UI.showToast(`Image uploaded ${fileName}`, { type: "success" });
+            });
+        });
+    }
+}
 
-let expressionModule = BdApi.Webpack.getModule((m) => { var _a, _b; return (_b = (_a = m.type) === null || _a === void 0 ? void 0 : _a.toString) === null || _b === void 0 ? void 0 : _b.call(_a).includes("onSelectGIF"); });
-let buttonsModule = BdApi.Webpack.getModule((m) => { var _a, _b; return (_b = (_a = m.type) === null || _a === void 0 ? void 0 : _a.toString) === null || _b === void 0 ? void 0 : _b.call(_a).includes("ChannelTextAreaButtons"); });
+let expressionModule = BdApi.Webpack.getModule((m) => m.type?.toString?.().includes("onSelectGIF"));
+let buttonsModule = BdApi.Webpack.getModule((m) => m.type?.toString?.().includes("ChannelTextAreaButtons"));
 let pickerModule = BdApi.Webpack.getByKeys("useExpressionPickerStore");
 
-function sendImage(image) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const img = new Image();
-        img.src = image.src;
-        yield img.decode();
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-        const cloudUploader = BdApi.Webpack.getModule(module => module.CloudUpload);
-        const uploader = BdApi.Webpack.getModule(module => module.default && module.default.uploadFiles).default;
-        const blob = yield new Promise(resolve => canvas.toBlob((blob) => resolve(blob)));
-        const file = new File([blob], image.name, { type: 'image/png' });
-        const channelId = location.href.split('/').pop();
-        if (!channelId)
-            return;
-        pickerModule.closeExpressionPicker();
-        let fileUp = new cloudUploader.CloudUpload({ file: file, isClip: false, isThumbnail: false, platform: 1 }, channelId, false, 0);
-        let uploadOptions = {
-            channelId: channelId,
-            uploads: [fileUp],
-            draftType: 0,
-            options: { stickerIds: [] },
-            parsedMessage: { channelId: channelId, content: "", tts: false, invalidEmojis: [] }
-        };
-        yield uploader.uploadFiles(uploadOptions);
-    });
+async function sendImage(image) {
+    const img = new Image();
+    img.src = image.src;
+    await img.decode();
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    const cloudUploader = BdApi.Webpack.getModule(module => module.CloudUpload);
+    const uploader = BdApi.Webpack.getModule(module => module.default && module.default.uploadFiles).default;
+    const blob = await new Promise(resolve => canvas.toBlob((blob) => resolve(blob)));
+    const file = new File([blob], image.name, { type: 'image/png' });
+    const channelId = location.href.split('/').pop();
+    if (!channelId)
+        return;
+    pickerModule.closeExpressionPicker();
+    let fileUp = new cloudUploader.CloudUpload({ file: file, isClip: false, isThumbnail: false, platform: 1 }, channelId, false, 0);
+    let uploadOptions = {
+        channelId: channelId,
+        uploads: [fileUp],
+        draftType: 0,
+        options: { stickerIds: [] },
+        parsedMessage: { channelId: channelId, content: "", tts: false, invalidEmojis: [] }
+    };
+    await uploader.uploadFiles(uploadOptions);
 }
 
 // @ts-ignore
@@ -405,6 +328,8 @@ function ImageTab() {
 }
 var imageTab = React.memo(ImageTab);
 
+// @ts-ignore
+
 onStart(() => {
     BdApi.DOM.addStyle("imgFolderStyles", styles);
     BdApi.Patcher.after("ImageFolder", buttonsModule, "type", (_, __, returnVal) => {
@@ -426,9 +351,8 @@ onStart(() => {
         if (unpatch)
             unpatch();
         unpatch = BdApi.Patcher.after("ImageFolder", returnVal.props.children.props, "children", (_, __, returnVal2) => {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
-            let sections = (_f = (_e = (_d = (_c = (_b = (_a = returnVal2 === null || returnVal2 === void 0 ? void 0 : returnVal2.props) === null || _a === void 0 ? void 0 : _a.children) === null || _b === void 0 ? void 0 : _b.props) === null || _c === void 0 ? void 0 : _c.children) === null || _d === void 0 ? void 0 : _d[1]) === null || _e === void 0 ? void 0 : _e.props) === null || _f === void 0 ? void 0 : _f.children;
-            let categories = (_k = (_j = (_h = (_g = sections === null || sections === void 0 ? void 0 : sections[0]) === null || _g === void 0 ? void 0 : _g.props) === null || _h === void 0 ? void 0 : _h.children) === null || _j === void 0 ? void 0 : _j.props) === null || _k === void 0 ? void 0 : _k.children; // react moment
+            let sections = returnVal2?.props?.children?.props?.children?.[1]?.props?.children;
+            let categories = sections?.[0]?.props?.children?.props?.children; // react moment
             if (!categories)
                 return;
             let activeView = pickerModule.useExpressionPickerStore.getState().activeView;
@@ -458,21 +382,13 @@ onStop(() => {
 });
     }
 
-
     start() {
         for(let callback of this.startCallbacks) {
             callback.callback();
         }
     }
-    
     stop() {
         for(let callback of this.stopCallbacks) {
-            callback.callback();
-        }
-    }
-
-    onSwitch() {
-        for(let callback of this.onSwitchCallbacks) {
             callback.callback();
         }
     }

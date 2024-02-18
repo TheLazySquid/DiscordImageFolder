@@ -1,6 +1,6 @@
 {
   "name": "imagefolder",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A BetterDiscord plugin that allows you to save and send images from a folder for easy access",
   "main": "src/main.ts",
   "type": "module",
@@ -17,10 +17,13 @@
   "author": "TheLazySquid",
   "license": "MIT",
   "dependencies": {
+    "lazypluginlib": "github:TheLazySquid/LazyPluginLib"
+  },
+  "devDependencies": {
     "@babel/preset-react": "^7.23.3",
     "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-typescript": "^11.1.6",
     "@types/betterdiscord": "github:zerthox/betterdiscord-types",
-    "lazypluginlib": "github:TheLazySquid/LazyPluginLib",
     "rollup-plugin-string": "^3.0.0"
   }
 }
