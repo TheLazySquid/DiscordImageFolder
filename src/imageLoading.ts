@@ -1,6 +1,7 @@
 import type { IImg, IImgFolder } from './types.js';
 
 const fs = require('fs');
+const Buffer = require('buffer')
 const { join, basename } = require('path');
 
 const mimeTypes: Record<string, string> = {
@@ -22,7 +23,8 @@ export async function pathToSrc(path: string): Promise<string> {
 
             let ext = basename(path).split('.')[1];
             const mime = mimeTypes[ext];
-            resolve(`data:${mime};base64,${btoa(contents)}`);
+            const base64 = Buffer.from(contents, 'latin1').toString('base64');
+            resolve(`data:${mime};base64,${base64}`);
         });
     });
 }
