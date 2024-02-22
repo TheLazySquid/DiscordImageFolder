@@ -1,4 +1,4 @@
-import type { IImg, IImgFolder } from './types.js';
+import type { IImgFolder } from './types.js';
 
 const fs = require('fs');
 const Buffer = require('buffer')
@@ -13,18 +13,33 @@ const mimeTypes: Record<string, string> = {
 
 const imgFolderPath = join(__dirname, 'imageFolder')
 
+export async function chunkedBase64Encode(str: string) {
+    return new Promise(async (resolve) => {
+        let output = '';
+        let i = 0;
+        const chunkSize = 65535; // chosen randomly
+        while (i < str.length) {
+            output += btoa(str.slice(i, i += chunkSize));
+        
+            // allow event loop to run
+            await new Promise(r => setTimeout(r, 0));
+        }
+
+        resolve(output);
+    })
+}
+
 export async function pathToSrc(path: string): Promise<string> {
     return new Promise((resolve, reject) => {
-        fs.readFile(join(imgFolderPath, path), 'latin1', (err, contents) => {
+        fs.readFile(join(imgFolderPath, path), 'latin1', async (err, contents) => {
             if (err) {
                 reject(err);
                 return;
             }
 
-            let ext = basename(path).split('.')[1];
+            let ext = path.split('.').at(-1)!;
             const mime = mimeTypes[ext];
-            const base64 = Buffer.from(contents, 'latin1').toString('base64');
-            resolve(`data:${mime};base64,${base64}`);
+            resolve(`data:${mime};base64,${await chunkedBase64Encode(contents)}`);
         });
     });
 }
@@ -49,7 +64,7 @@ export async function loadFolder(path: string): Promise<IImgFolder> {
                 return;
             } 
 
-            let images: IImg[] = [];
+            let images: string[] = [];
             let folders: string[] = [];
             let pending = files.length;
             if (!pending) {
@@ -71,10 +86,8 @@ export async function loadFolder(path: string): Promise<IImgFolder> {
                     if (stat.isDirectory()) {
                         folders.push(file);
                     } else {
-                        images.push({
-                            name: file,
-                            src: await pathToSrc(join(path, file))
-                        });
+                        const ext = file.split('.').at(-1);
+                        if (mimeTypes[ext]) images.push(file);
                     }
 
                     if (!--pending) {

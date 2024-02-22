@@ -10,6 +10,7 @@ onStart(() => {
     BdApi.DOM.addStyle("imgFolderStyles", styles)
 
     BdApi.Patcher.after("ImageFolder", buttonsModule, "type", (_, __, returnVal) => {
+        if(!returnVal) return returnVal
         let gifIndex = returnVal.props.children.findIndex((child: any) => child.key == 'gif')
         let type = returnVal.props.children[gifIndex].props.type
 

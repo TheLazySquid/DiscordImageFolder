@@ -10,9 +10,9 @@ import FolderOpenOutline from '../assets/folder-open-outline.svg';
 import FolderArrowLeftOuline from '../assets/folder-arrow-left-outline.svg';
 // @ts-ignore
 import Pencil from '../assets/pencil.svg';
-import type { IImg, IImgFolder } from './types';
+import type { IImgFolder } from './types';
 import { loadFolder, uploadImage } from './imageLoading';
-import { sendImage } from './uploader';
+import ImageComponent from './ImageComponent';
 
 const React = BdApi.React;
 
@@ -30,6 +30,7 @@ function ImageTab() {
     function updateFolder() {
         loadFolder(folderPath).then((folder) => {
             setSelectedFolder(folder);
+            console.log(folder.images)
         });
     }
 
@@ -125,13 +126,13 @@ function ImageTab() {
             .then(updateFolder);
     }
 
-    function deleteImage(e: any, image: IImg) {
+    function deleteImage(e: any, image: string) {
         e.stopPropagation();
-        BdApi.UI.showConfirmationModal('Delete Image', `Are you sure you want to delete ${image.name}?`, {
+        BdApi.UI.showConfirmationModal('Delete Image', `Are you sure you want to delete ${image}?`, {
             danger: true,
             confirmText: 'Delete',
             onConfirm: () => {
-                fs.unlinkSync(join(__dirname, 'imageFolder', folderPath, image.name))
+                fs.unlinkSync(join(__dirname, 'imageFolder', folderPath, image))
                 BdApi.UI.showToast('Successfully deleted image', { type: 'success' });
 
                 // Reload folder
@@ -185,13 +186,11 @@ function ImageTab() {
                 <div className="images">
                     {selectedFolder.images.map((image) => {
                         return (
-                            <div className='image'>
+                            <div className='image' key={image}>
                                 <div className="icon" onClick={(e) => deleteImage(e, image)}
                                 dangerouslySetInnerHTML={{__html: TrashCanOutline}}>
                                 </div>
-                                <img src={image.src}
-                                onClick={() => sendImage(image)}
-                                />
+                                <ImageComponent name={image} path={folderPath} />
                             </div>
                         )
                     })}

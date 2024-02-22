@@ -1,9 +1,9 @@
 import { pickerModule } from "./modules";
-import { IImg } from "./types";
 
-export async function sendImage(image: IImg) {
+export async function sendImage(name: string, src: string) {
+    if(!name || !src) return
     const img = new Image()
-    img.src = image.src
+    img.src = src
     await img.decode();
 
     const canvas = document.createElement('canvas')
@@ -16,7 +16,7 @@ export async function sendImage(image: IImg) {
     const uploader = BdApi.Webpack.getModule(module => module.default && module.default.uploadFiles).default
     
     const blob: Blob = await new Promise(resolve => canvas.toBlob((blob) => resolve(blob!)))
-    const file = new File([blob], image.name, { type: 'image/png' })
+    const file = new File([blob], name, { type: 'image/png' })
 
     const channelId = location.href.split('/').pop()
     if (!channelId) return

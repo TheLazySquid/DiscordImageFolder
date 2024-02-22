@@ -1,6 +1,6 @@
 /**
  * @name ImageFolder
- * @version 0.1.2
+ * @version 0.2.0
  * @description A BetterDiscord plugin that allows you to save and send images from a folder for easy access
  * @author TheLazySquid
  * @authorId 619261917352951815
@@ -63,36 +63,48 @@ var FolderArrowLeftOuline = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\
 var Pencil = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z\" /></svg>";
 
 const fs$1 = require('fs');
-const Buffer = require('buffer');
-const { join: join$1, basename } = require('path');
+require('buffer');
+const { join: join$2, basename } = require('path');
 const mimeTypes = {
     'jpg': 'image/jpeg',
     'jpeg': 'image/jpeg',
     'png': 'image/png',
     'webp': 'image/webp',
 };
-const imgFolderPath = join$1(__dirname, 'imageFolder');
+const imgFolderPath = join$2(__dirname, 'imageFolder');
+async function chunkedBase64Encode(str) {
+    return new Promise(async (resolve) => {
+        let output = '';
+        let i = 0;
+        const chunkSize = 65535; // chosen randomly
+        while (i < str.length) {
+            output += btoa(str.slice(i, i += chunkSize));
+            // allow event loop to run
+            await new Promise(r => setTimeout(r, 0));
+        }
+        resolve(output);
+    });
+}
 async function pathToSrc(path) {
     return new Promise((resolve, reject) => {
-        fs$1.readFile(join$1(imgFolderPath, path), 'latin1', (err, contents) => {
+        fs$1.readFile(join$2(imgFolderPath, path), 'latin1', async (err, contents) => {
             if (err) {
                 reject(err);
                 return;
             }
-            let ext = basename(path).split('.')[1];
+            let ext = path.split('.').at(-1);
             const mime = mimeTypes[ext];
-            const base64 = Buffer.from(contents, 'latin1').toString('base64');
-            resolve(`data:${mime};base64,${base64}`);
+            resolve(`data:${mime};base64,${await chunkedBase64Encode(contents)}`);
         });
     });
 }
 async function loadFolder(path) {
     path = path.replace(/\\/g, '/');
-    if (!fs$1.existsSync(join$1(imgFolderPath))) {
-        fs$1.mkdirSync(join$1(imgFolderPath));
+    if (!fs$1.existsSync(join$2(imgFolderPath))) {
+        fs$1.mkdirSync(join$2(imgFolderPath));
     }
     return new Promise((resolve, reject) => {
-        const folderPath = join$1(imgFolderPath, path);
+        const folderPath = join$2(imgFolderPath, path);
         if (!fs$1.existsSync(folderPath)) {
             return reject("Folder does not exist");
         }
@@ -113,7 +125,7 @@ async function loadFolder(path) {
             }
             // read all the files
             for (const file of files) {
-                const filePath = join$1(folderPath, file);
+                const filePath = join$2(folderPath, file);
                 fs$1.stat(filePath, {}, async (err, stat) => {
                     if (err) {
                         reject(err);
@@ -123,10 +135,9 @@ async function loadFolder(path) {
                         folders.push(file);
                     }
                     else {
-                        images.push({
-                            name: file,
-                            src: await pathToSrc(join$1(path, file))
-                        });
+                        const ext = file.split('.').at(-1);
+                        if (mimeTypes[ext])
+                            images.push(file);
                     }
                     if (!--pending) {
                         resolve({
@@ -158,7 +169,7 @@ async function uploadImage(folderPath) {
     // @ts-ignore
     for (let file of result.filePaths) {
         let fileName = basename(file);
-        let newPath = join$1(imgFolderPath, folderPath, fileName);
+        let newPath = join$2(imgFolderPath, folderPath, fileName);
         // read the file, and write it to the new path
         fs$1.readFile(file, {}, (err, contents) => {
             if (err) {
@@ -180,9 +191,11 @@ let expressionModule = BdApi.Webpack.getModule((m) => m.type?.toString?.().inclu
 let buttonsModule = BdApi.Webpack.getModule((m) => m.type?.toString?.().includes("ChannelTextAreaButtons"));
 let pickerModule = BdApi.Webpack.getByKeys("useExpressionPickerStore");
 
-async function sendImage(image) {
+async function sendImage(name, src) {
+    if (!name || !src)
+        return;
     const img = new Image();
-    img.src = image.src;
+    img.src = src;
     await img.decode();
     const canvas = document.createElement('canvas');
     canvas.width = img.width;
@@ -192,7 +205,7 @@ async function sendImage(image) {
     const cloudUploader = BdApi.Webpack.getModule(module => module.CloudUpload);
     const uploader = BdApi.Webpack.getModule(module => module.default && module.default.uploadFiles).default;
     const blob = await new Promise(resolve => canvas.toBlob((blob) => resolve(blob)));
-    const file = new File([blob], image.name, { type: 'image/png' });
+    const file = new File([blob], name, { type: 'image/png' });
     const channelId = location.href.split('/').pop();
     if (!channelId)
         return;
@@ -206,6 +219,35 @@ async function sendImage(image) {
         parsedMessage: { channelId: channelId, content: "", tts: false, invalidEmojis: [] }
     };
     await uploader.uploadFiles(uploadOptions);
+}
+
+const React$1 = BdApi.React;
+const { join: join$1 } = require('path');
+function imageComponent({ name, path }) {
+    const imgRef = React$1.useRef(null);
+    const [src, setSrc] = React$1.useState('');
+    let observer = new IntersectionObserver((entries) => {
+        if (src != "")
+            return;
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                // get the base64 src
+                pathToSrc(join$1(path, name)).then((src) => {
+                    setSrc(src);
+                });
+            }
+        });
+    });
+    // when the image is loaded, add it to the observer
+    React$1.useEffect(() => {
+        if (imgRef.current)
+            observer.observe(imgRef.current);
+        return () => {
+            if (imgRef.current)
+                observer.unobserve(imgRef.current);
+        };
+    }, [imgRef.current]);
+    return (React$1.createElement("img", { onClick: () => sendImage(name, src), ref: imgRef, src: src, style: { height: src ? '' : '50%' } }));
 }
 
 // @ts-ignore
@@ -222,6 +264,7 @@ function ImageTab() {
     function updateFolder() {
         loadFolder(folderPath).then((folder) => {
             setSelectedFolder(folder);
+            console.log(folder.images);
         });
     }
     React.useEffect(updateFolder, [folderPath]);
@@ -295,11 +338,11 @@ function ImageTab() {
     }
     function deleteImage(e, image) {
         e.stopPropagation();
-        BdApi.UI.showConfirmationModal('Delete Image', `Are you sure you want to delete ${image.name}?`, {
+        BdApi.UI.showConfirmationModal('Delete Image', `Are you sure you want to delete ${image}?`, {
             danger: true,
             confirmText: 'Delete',
             onConfirm: () => {
-                fs.unlinkSync(join(__dirname, 'imageFolder', folderPath, image.name));
+                fs.unlinkSync(join(__dirname, 'imageFolder', folderPath, image));
                 BdApi.UI.showToast('Successfully deleted image', { type: 'success' });
                 // Reload folder
                 updateFolder();
@@ -323,9 +366,9 @@ function ImageTab() {
                         React.createElement("div", { className: "icon", onClick: (e) => deleteFolder(e, folder), dangerouslySetInnerHTML: { __html: TrashCanOutline } }))));
             }),
             React.createElement("div", { className: "images" }, selectedFolder.images.map((image) => {
-                return (React.createElement("div", { className: 'image' },
+                return (React.createElement("div", { className: 'image', key: image },
                     React.createElement("div", { className: "icon", onClick: (e) => deleteImage(e, image), dangerouslySetInnerHTML: { __html: TrashCanOutline } }),
-                    React.createElement("img", { src: image.src, onClick: () => sendImage(image) })));
+                    React.createElement(imageComponent, { name: image, path: folderPath })));
             })))));
 }
 var imageTab = React.memo(ImageTab);
@@ -335,6 +378,8 @@ var imageTab = React.memo(ImageTab);
 onStart(() => {
     BdApi.DOM.addStyle("imgFolderStyles", styles);
     BdApi.Patcher.after("ImageFolder", buttonsModule, "type", (_, __, returnVal) => {
+        if (!returnVal)
+            return returnVal;
         let gifIndex = returnVal.props.children.findIndex((child) => child.key == 'gif');
         let type = returnVal.props.children[gifIndex].props.type;
         let div = BdApi.React.createElement('div', {

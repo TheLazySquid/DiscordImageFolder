@@ -1,10 +1,5 @@
-export interface IImg {
-    name: string;
-    src: string;
-}
-
 export interface IImgFolder {
     folders: string[];
-    images: IImg[];
+    images: string[];
     path: string;
 }
