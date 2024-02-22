@@ -14,7 +14,7 @@ export default {
     author: pkg.author,
     authorId: "619261917352951815",
     website: pkg.repository.url,
-    source: `${pkg.repository.url}/blob/master/build/ImageFolder.plugin.js`,
+    source: `${pkg.repository.url}/blob/main/build/ImageFolder.plugin.js`,
   },
   plugins: [
     typescript({
