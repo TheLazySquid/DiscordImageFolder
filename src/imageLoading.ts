@@ -1,7 +1,6 @@
 import type { IImgFolder } from './types.js';
 
 const fs = require('fs');
-const Buffer = require('buffer')
 const { join, basename } = require('path');
 
 const mimeTypes: Record<string, string> = {
@@ -9,6 +8,8 @@ const mimeTypes: Record<string, string> = {
     'jpeg': 'image/jpeg',
     'png': 'image/png',
     'webp': 'image/webp',
+    'avif': 'image/avif',
+    'avifs': 'image/avif'
 }
 
 const imgFolderPath = join(__dirname, 'imageFolder')
@@ -109,7 +110,7 @@ export async function uploadImage(folderPath: string) {
         filters: [
             {
                 name: "Images",
-                extensions: ["png", "jpg", "jpeg", "webp"]
+                extensions: Object.keys(mimeTypes)
             }
         ],
         title: "Upload an image",

@@ -149,7 +149,7 @@ function ImageTab() {
                 dangerouslySetInnerHTML={{__html: FolderArrowLeftOuline}}>
                 </div>
                 <div className='path'>
-                    {selectedFolder.path.split('/').reverse().join('/')}
+                    {selectedFolder.path}
                 </div>
                 <div className="icon" onClick={createFolder}
                 dangerouslySetInnerHTML={{__html: FolderPlusOutline}}>

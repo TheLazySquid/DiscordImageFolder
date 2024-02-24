@@ -1,6 +1,6 @@
 /**
  * @name ImageFolder
- * @version 0.2.0
+ * @version 0.2.1
  * @description A BetterDiscord plugin that allows you to save and send images from a folder for easy access
  * @author TheLazySquid
  * @authorId 619261917352951815
@@ -63,13 +63,14 @@ var FolderArrowLeftOuline = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\
 var Pencil = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z\" /></svg>";
 
 const fs$1 = require('fs');
-require('buffer');
 const { join: join$2, basename } = require('path');
 const mimeTypes = {
     'jpg': 'image/jpeg',
     'jpeg': 'image/jpeg',
     'png': 'image/png',
     'webp': 'image/webp',
+    'avif': 'image/avif',
+    'avifs': 'image/avif'
 };
 const imgFolderPath = join$2(__dirname, 'imageFolder');
 async function chunkedBase64Encode(str) {
@@ -157,7 +158,7 @@ async function uploadImage(folderPath) {
         filters: [
             {
                 name: "Images",
-                extensions: ["png", "jpg", "jpeg", "webp"]
+                extensions: Object.keys(mimeTypes)
             }
         ],
         title: "Upload an image",
@@ -204,8 +205,11 @@ async function sendImage(name, src) {
     ctx.drawImage(img, 0, 0);
     const cloudUploader = BdApi.Webpack.getModule(module => module.CloudUpload);
     const uploader = BdApi.Webpack.getModule(module => module.default && module.default.uploadFiles).default;
+    let parts = name.split(".");
+    parts.pop();
+    let fileName = parts.join(".") + ".png";
     const blob = await new Promise(resolve => canvas.toBlob((blob) => resolve(blob)));
-    const file = new File([blob], name, { type: 'image/png' });
+    const file = new File([blob], fileName, { type: 'image/png' });
     const channelId = location.href.split('/').pop();
     if (!channelId)
         return;
@@ -352,7 +356,7 @@ function ImageTab() {
     return (React.createElement("div", { className: "imageTab" },
         React.createElement("div", { className: 'pathContainer' },
             React.createElement("div", { className: "icon folderReturn", onClick: backFolder, dangerouslySetInnerHTML: { __html: FolderArrowLeftOuline } }),
-            React.createElement("div", { className: 'path' }, selectedFolder.path.split('/').reverse().join('/')),
+            React.createElement("div", { className: 'path' }, selectedFolder.path),
             React.createElement("div", { className: "icon", onClick: createFolder, dangerouslySetInnerHTML: { __html: FolderPlusOutline } }),
             React.createElement("div", { className: "icon", onClick: createImage, dangerouslySetInnerHTML: { __html: imagePlusOutline } })),
         React.createElement("div", { className: "content" },

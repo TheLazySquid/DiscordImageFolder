@@ -15,8 +15,12 @@ export async function sendImage(name: string, src: string) {
     const cloudUploader = BdApi.Webpack.getModule(module => module.CloudUpload)
     const uploader = BdApi.Webpack.getModule(module => module.default && module.default.uploadFiles).default
     
+    let parts = name.split(".")
+    parts.pop()
+    let fileName = parts.join(".") + ".png"
+
     const blob: Blob = await new Promise(resolve => canvas.toBlob((blob) => resolve(blob!)))
-    const file = new File([blob], name, { type: 'image/png' })
+    const file = new File([blob], fileName, { type: 'image/png' })
 
     const channelId = location.href.split('/').pop()
     if (!channelId) return
