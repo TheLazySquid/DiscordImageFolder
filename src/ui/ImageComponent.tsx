@@ -1,7 +1,8 @@
 const React = BdApi.React;
 
-import { pathToSrc } from './imageLoading';
-import { sendImage } from './uploader';
+import { pathToSrc } from '../imageLoading';
+import { sendProcessedImage, sendRawImage } from '../uploader';
+import { settings } from './SettingsPanel';
 const { join } = require('path');
 
 function imageComponent({ name, path }: { name: string, path: string }) {
@@ -28,8 +29,16 @@ function imageComponent({ name, path }: { name: string, path: string }) {
         }
     }, [imgRef.current]);
 
+    function sendImage() {
+        if(settings.rerender) {
+            sendProcessedImage(name, src);
+        } else {
+            sendRawImage(name, path);
+        }
+    }
+
     return (
-        <img onClick={() => sendImage(name, src)} ref={imgRef} src={src}
+        <img onClick={sendImage} ref={imgRef} src={src}
         style={{ height: src ? '' : '50%' }} />
     )
 }

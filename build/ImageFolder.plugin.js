@@ -1,6 +1,6 @@
 /**
  * @name ImageFolder
- * @version 0.2.1
+ * @version 0.2.2
  * @description A BetterDiscord plugin that allows you to save and send images from a folder for easy access
  * @author TheLazySquid
  * @authorId 619261917352951815
@@ -46,6 +46,9 @@ module.exports = class {
         const onStart = createCallbackHandler("start");
         const onStop = createCallbackHandler("stop");
 
+        const setSettingsPanel = (el) => {
+            this.getSettingsPanel = () => el;
+        }
 'use strict';
 
 var imagePlusOutline = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\"><path d=\"M13 19C13 19.7 13.13 20.37 13.35 21H5C3.9 21 3 20.11 3 19V5C3 3.9 3.9 3 5 3H19C20.11 3 21 3.9 21 5V13.35C20.37 13.13 19.7 13 19 13V5H5V19H13M13.96 12.29L11.21 15.83L9.25 13.47L6.5 17H13.35C13.75 15.88 14.47 14.91 15.4 14.21L13.96 12.29M20 18V15H18V18H15V20H18V23H20V20H23V18H20Z\" /></svg>";
@@ -62,17 +65,16 @@ var FolderArrowLeftOuline = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\
 
 var Pencil = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z\" /></svg>";
 
-const fs$1 = require('fs');
-const { join: join$2, basename } = require('path');
+const fs$2 = require('fs');
+const { join: join$3, basename } = require('path');
 const mimeTypes = {
     'jpg': 'image/jpeg',
     'jpeg': 'image/jpeg',
     'png': 'image/png',
     'webp': 'image/webp',
-    'avif': 'image/avif',
-    'avifs': 'image/avif'
+    'avif': 'image/avif'
 };
-const imgFolderPath = join$2(__dirname, 'imageFolder');
+const imgFolderPath = join$3(__dirname, 'imageFolder');
 async function chunkedBase64Encode(str) {
     return new Promise(async (resolve) => {
         let output = '';
@@ -88,7 +90,7 @@ async function chunkedBase64Encode(str) {
 }
 async function pathToSrc(path) {
     return new Promise((resolve, reject) => {
-        fs$1.readFile(join$2(imgFolderPath, path), 'latin1', async (err, contents) => {
+        fs$2.readFile(join$3(imgFolderPath, path), 'latin1', async (err, contents) => {
             if (err) {
                 reject(err);
                 return;
@@ -101,15 +103,15 @@ async function pathToSrc(path) {
 }
 async function loadFolder(path) {
     path = path.replace(/\\/g, '/');
-    if (!fs$1.existsSync(join$2(imgFolderPath))) {
-        fs$1.mkdirSync(join$2(imgFolderPath));
+    if (!fs$2.existsSync(join$3(imgFolderPath))) {
+        fs$2.mkdirSync(join$3(imgFolderPath));
     }
     return new Promise((resolve, reject) => {
-        const folderPath = join$2(imgFolderPath, path);
-        if (!fs$1.existsSync(folderPath)) {
+        const folderPath = join$3(imgFolderPath, path);
+        if (!fs$2.existsSync(folderPath)) {
             return reject("Folder does not exist");
         }
-        fs$1.readdir(folderPath, {}, (err, files) => {
+        fs$2.readdir(folderPath, {}, (err, files) => {
             if (err) {
                 reject(err);
                 return;
@@ -126,8 +128,8 @@ async function loadFolder(path) {
             }
             // read all the files
             for (const file of files) {
-                const filePath = join$2(folderPath, file);
-                fs$1.stat(filePath, {}, async (err, stat) => {
+                const filePath = join$3(folderPath, file);
+                fs$2.stat(filePath, {}, async (err, stat) => {
                     if (err) {
                         reject(err);
                         return;
@@ -170,14 +172,14 @@ async function uploadImage(folderPath) {
     // @ts-ignore
     for (let file of result.filePaths) {
         let fileName = basename(file);
-        let newPath = join$2(imgFolderPath, folderPath, fileName);
+        let newPath = join$3(imgFolderPath, folderPath, fileName);
         // read the file, and write it to the new path
-        fs$1.readFile(file, {}, (err, contents) => {
+        fs$2.readFile(file, {}, (err, contents) => {
             if (err) {
                 BdApi.UI.showToast(`Error reading file ${fileName}`, { type: "error" });
                 return;
             }
-            fs$1.writeFile(newPath, contents, {}, (err) => {
+            fs$2.writeFile(newPath, contents, {}, (err) => {
                 if (err) {
                     BdApi.UI.showToast(`Error writing file ${fileName}`, { type: "error" });
                     return;
@@ -191,8 +193,24 @@ async function uploadImage(folderPath) {
 let expressionModule = BdApi.Webpack.getModule((m) => m.type?.toString?.().includes("onSelectGIF"));
 let buttonsModule = BdApi.Webpack.getModule((m) => m.type?.toString?.().includes("ChannelTextAreaButtons"));
 let pickerModule = BdApi.Webpack.getByKeys("useExpressionPickerStore");
+// adapted from https://github.com/Zerthox/BetterDiscord-Plugins/blob/master/dist/bd/BetterFolders.plugin.js
+let formElements = BdApi.Webpack.getByKeys('Button', 'Switch', 'Select');
+let cloudUploader = BdApi.Webpack.getModule(module => module.CloudUpload);
+let uploader = BdApi.Webpack.getModule(module => module.default && module.default.uploadFiles).default;
 
-async function sendImage(name, src) {
+const fs$1 = require('fs');
+const { join: join$2 } = require('path');
+const Buffer = require('buffer');
+function sendRawImage(name, path) {
+    const contents = fs$1.readFileSync(join$2(__dirname, 'imageFolder', path, name), {
+        encoding: 'binary'
+    });
+    // you would not believe how long it took me to figure this out
+    const buff = Buffer.from(contents, 'binary');
+    const file = new File([buff], name, { type: 'image/png' });
+    sendFile(file);
+}
+async function sendProcessedImage(name, src) {
     if (!name || !src)
         return;
     const img = new Image();
@@ -203,13 +221,14 @@ async function sendImage(name, src) {
     canvas.height = img.height;
     const ctx = canvas.getContext('2d');
     ctx.drawImage(img, 0, 0);
-    const cloudUploader = BdApi.Webpack.getModule(module => module.CloudUpload);
-    const uploader = BdApi.Webpack.getModule(module => module.default && module.default.uploadFiles).default;
     let parts = name.split(".");
     parts.pop();
     let fileName = parts.join(".") + ".png";
     const blob = await new Promise(resolve => canvas.toBlob((blob) => resolve(blob)));
     const file = new File([blob], fileName, { type: 'image/png' });
+    sendFile(file);
+}
+async function sendFile(file) {
     const channelId = location.href.split('/').pop();
     if (!channelId)
         return;
@@ -223,6 +242,21 @@ async function sendImage(name, src) {
         parsedMessage: { channelId: channelId, content: "", tts: false, invalidEmojis: [] }
     };
     await uploader.uploadFiles(uploadOptions);
+}
+
+const React$2 = BdApi.React;
+const FormSwitch = formElements.FormSwitch;
+// this is scuffed but it's easy
+let settings = {
+    rerender: BdApi.Data.load("ImageFolder", "rerender") ?? true
+};
+function SettingsPanel() {
+    const [rerender, setRerender] = React$2.useState(settings.rerender);
+    return (React$2.createElement(FormSwitch, { note: "This will allow you to send AVIFs and sequenced WebPs (albeit without animation) and have them properly embed", value: rerender, onChange: (checked) => {
+            BdApi.Data.save("ImageFolder", "rerender", checked);
+            settings.rerender = checked;
+            setRerender(checked);
+        } }, "Re-render images as PNG before sending"));
 }
 
 const React$1 = BdApi.React;
@@ -251,7 +285,15 @@ function imageComponent({ name, path }) {
                 observer.unobserve(imgRef.current);
         };
     }, [imgRef.current]);
-    return (React$1.createElement("img", { onClick: () => sendImage(name, src), ref: imgRef, src: src, style: { height: src ? '' : '50%' } }));
+    function sendImage() {
+        if (settings.rerender) {
+            sendProcessedImage(name, src);
+        }
+        else {
+            sendRawImage(name, path);
+        }
+    }
+    return (React$1.createElement("img", { onClick: sendImage, ref: imgRef, src: src, style: { height: src ? '' : '50%' } }));
 }
 
 // @ts-ignore
@@ -268,7 +310,6 @@ function ImageTab() {
     function updateFolder() {
         loadFolder(folderPath).then((folder) => {
             setSelectedFolder(folder);
-            console.log(folder.images);
         });
     }
     React.useEffect(updateFolder, [folderPath]);
@@ -378,7 +419,7 @@ function ImageTab() {
 var imageTab = React.memo(ImageTab);
 
 // @ts-ignore
-
+setSettingsPanel(BdApi.React.createElement(SettingsPanel));
 onStart(() => {
     BdApi.DOM.addStyle("imgFolderStyles", styles);
     BdApi.Patcher.after("ImageFolder", buttonsModule, "type", (_, __, returnVal) => {

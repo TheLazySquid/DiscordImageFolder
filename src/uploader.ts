@@ -1,7 +1,24 @@
-import { pickerModule } from "./modules";
+import { pickerModule, uploader, cloudUploader } from "./modules";
 
-export async function sendImage(name: string, src: string) {
+const fs = require('fs')
+const { join } = require('path')
+const Buffer = require('buffer')
+
+export function sendRawImage(name: string, path: string) {
+    const contents = fs.readFileSync(join(__dirname, 'imageFolder', path, name), {
+        encoding: 'binary'
+    }) as string;
+
+    // you would not believe how long it took me to figure this out
+    const buff = Buffer.from(contents, 'binary')
+    const file = new File([buff], name, { type: 'image/png' })
+
+    sendFile(file)
+}
+
+export async function sendProcessedImage(name: string, src: string) {
     if(!name || !src) return
+
     const img = new Image()
     img.src = src
     await img.decode();
@@ -12,9 +29,6 @@ export async function sendImage(name: string, src: string) {
     const ctx = canvas.getContext('2d')!
     ctx.drawImage(img, 0, 0)
     
-    const cloudUploader = BdApi.Webpack.getModule(module => module.CloudUpload)
-    const uploader = BdApi.Webpack.getModule(module => module.default && module.default.uploadFiles).default
-    
     let parts = name.split(".")
     parts.pop()
     let fileName = parts.join(".") + ".png"
@@ -22,6 +36,10 @@ export async function sendImage(name: string, src: string) {
     const blob: Blob = await new Promise(resolve => canvas.toBlob((blob) => resolve(blob!)))
     const file = new File([blob], fileName, { type: 'image/png' })
 
+    sendFile(file)
+}
+
+async function sendFile(file: File) {
     const channelId = location.href.split('/').pop()
     if (!channelId) return
     pickerModule.closeExpressionPicker();

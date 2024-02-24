@@ -2,9 +2,12 @@
 import imagePlusOutline from '../assets/image-plus-outline.svg'
 // @ts-ignore
 import styles from './styles.css'
-import imageTab from './imageTab.jsx'
+import imageTab from './ui/imageTab'
 import { buttonsModule, expressionModule, pickerModule } from './modules.js';
-import { onStart, onStop } from 'lazypluginlib'
+import { onStart, onStop, setSettingsPanel } from 'lazypluginlib'
+import SettingsPanel from './ui/SettingsPanel.js';
+
+setSettingsPanel(BdApi.React.createElement(SettingsPanel))
 
 onStart(() => {
     BdApi.DOM.addStyle("imgFolderStyles", styles)

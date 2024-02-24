@@ -1,17 +1,17 @@
 // @ts-ignore
-import ImagePlusOutline from '../assets/image-plus-outline.svg';
+import ImagePlusOutline from '../../assets/image-plus-outline.svg';
 // @ts-ignore
-import FolderPlusOutline from '../assets/folder-plus-outline.svg';
+import FolderPlusOutline from '../../assets/folder-plus-outline.svg';
 // @ts-ignore
-import TrashCanOutline from '../assets/trash-can-outline.svg';
+import TrashCanOutline from '../../assets/trash-can-outline.svg';
 // @ts-ignore
-import FolderOpenOutline from '../assets/folder-open-outline.svg';
+import FolderOpenOutline from '../../assets/folder-open-outline.svg';
 // @ts-ignore
-import FolderArrowLeftOuline from '../assets/folder-arrow-left-outline.svg';
+import FolderArrowLeftOuline from '../../assets/folder-arrow-left-outline.svg';
 // @ts-ignore
-import Pencil from '../assets/pencil.svg';
-import type { IImgFolder } from './types';
-import { loadFolder, uploadImage } from './imageLoading';
+import Pencil from '../../assets/pencil.svg';
+import type { IImgFolder } from '../types';
+import { loadFolder, uploadImage } from '../imageLoading';
 import ImageComponent from './ImageComponent';
 
 const React = BdApi.React;
@@ -30,7 +30,6 @@ function ImageTab() {
     function updateFolder() {
         loadFolder(folderPath).then((folder) => {
             setSelectedFolder(folder);
-            console.log(folder.images)
         });
     }
 

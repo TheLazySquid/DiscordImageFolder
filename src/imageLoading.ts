@@ -8,8 +8,7 @@ const mimeTypes: Record<string, string> = {
     'jpeg': 'image/jpeg',
     'png': 'image/png',
     'webp': 'image/webp',
-    'avif': 'image/avif',
-    'avifs': 'image/avif'
+    'avif': 'image/avif'
 }
 
 const imgFolderPath = join(__dirname, 'imageFolder')
