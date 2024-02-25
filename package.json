@@ -1,6 +1,6 @@
 {
   "name": "imagefolder",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "A BetterDiscord plugin that allows you to save and send images from a folder for easy access",
   "main": "src/main.ts",
   "type": "module",
@@ -24,6 +24,7 @@
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-typescript": "^11.1.6",
     "@types/betterdiscord": "github:zerthox/betterdiscord-types",
+    "@wemap/rollup-plugin-arraybuffer": "^0.1.2",
     "rollup-plugin-string": "^3.0.0"
   }
 }

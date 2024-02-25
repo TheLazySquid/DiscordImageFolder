@@ -1,4 +1,4 @@
-import { pickerModule, uploader, cloudUploader } from "./modules";
+import { pickerModule, uploader, cloudUploader } from "./constants";
 
 const fs = require('fs')
 const { join } = require('path')
@@ -39,7 +39,7 @@ export async function sendProcessedImage(name: string, src: string) {
     sendFile(file)
 }
 
-async function sendFile(file: File) {
+export async function sendFile(file: File) {
     const channelId = location.href.split('/').pop()
     if (!channelId) return
     pickerModule.closeExpressionPicker();

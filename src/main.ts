@@ -3,11 +3,63 @@ import imagePlusOutline from '../assets/image-plus-outline.svg'
 // @ts-ignore
 import styles from './styles.css'
 import imageTab from './ui/imageTab'
-import { buttonsModule, expressionModule, pickerModule } from './modules.js';
+import { buttonsModule, expressionModule, pickerModule, mimeTypes } from './constants';
 import { onStart, onStop, setSettingsPanel } from 'lazypluginlib'
 import SettingsPanel from './ui/SettingsPanel.js';
 
+const fs = require('fs')
+const { join } = require('path')
+const Buffer = require('buffer')
+
 setSettingsPanel(BdApi.React.createElement(SettingsPanel))
+
+function patchMenu(returnVal: any, props: any) {
+    if(!returnVal || !props?.attachment) return returnVal
+    if(!Object.values(mimeTypes).includes(props.attachment.content_type)) return returnVal
+    
+    // get valid extensions
+    let exts: string[] = []
+    for(let ext in mimeTypes) {
+        if(mimeTypes[ext] == props.attachment.content_type) exts.push(ext)
+    }
+
+    // add our context menu item
+    returnVal.props.children.push(BdApi.ContextMenu.buildItem({
+        type: "separator"
+    }), BdApi.ContextMenu.buildItem({
+        type: "text",
+        label: "Add Image to Folder",
+        onClick: async () => {
+            let res = await BdApi.UI.openDialog({
+                mode: "save",
+                defaultPath: join(__dirname, 'imageFolder', props.attachment.filename),
+                filters: [
+                    {
+                        name: "Image",
+                        extensions: exts
+                    }
+                ],
+                title: "Save Image",
+                message: "Select a folder to save the image to"
+            })
+            
+            // @ts-expect-error
+            if(!res || res.canceled) return
+
+            // save the image
+            fetch(props.attachment.url).then(res => res.arrayBuffer()).then(array => {
+                let buff = Buffer.from(array)
+                // @ts-expect-error
+                fs.writeFile(res.filePath, buff, (err: any) => {
+                    if(err) BdApi.UI.showToast('Failed to save image', {type: 'error'})
+                    else BdApi.UI.showToast('Image saved', {type: 'success'})
+                })
+            })
+        }
+    }))
+
+    return returnVal
+}
 
 onStart(() => {
     BdApi.DOM.addStyle("imgFolderStyles", styles)
@@ -34,8 +86,14 @@ onStart(() => {
     let unpatch: () => void;
 
     BdApi.Patcher.after("ImageFolder", expressionModule, "type", (_, __, returnVal) => {
+        if(!returnVal) return returnVal
+
+        // if we've already patched, unpatch
         if (unpatch) unpatch()
+
         unpatch = BdApi.Patcher.after("ImageFolder", returnVal.props.children.props, "children", (_, __, returnVal2) => {
+            if(!returnVal2) return returnVal2
+
             let sections = returnVal2?.props?.children?.props?.children?.[1]?.props?.children
             let categories = sections?.[0]?.props?.children?.props?.children // react moment
             if (!categories) return
@@ -64,9 +122,13 @@ onStart(() => {
         })
         return returnVal
     })
+
+    // context menu patches
+    BdApi.ContextMenu.patch("message", patchMenu)
 })
 
 onStop(() => {
     BdApi.Patcher.unpatchAll("ImageFolder")
     BdApi.DOM.removeStyle("imgFolderStyles")
+    BdApi.ContextMenu.unpatch("message", patchMenu)
 })

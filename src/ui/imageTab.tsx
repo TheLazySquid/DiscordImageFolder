@@ -98,8 +98,8 @@ function ImageTab() {
         let folderName = '';
 
         BdApi.UI.showConfirmationModal(`Rename ${folder}`, (
-            <div className='folderNameWrap'>
-                <input className='createFolderInput' onChange={(e) => folderName = e.target.value} spellCheck={false}
+            <div className='if-nameWrap'>
+                <input className='if-nameInput' onChange={(e) => folderName = e.target.value} spellCheck={false}
                 placeholder='Folder Name'></input>
             </div>
         ), {
@@ -123,21 +123,6 @@ function ImageTab() {
     function createImage() {
         uploadImage(folderPath)
             .then(updateFolder);
-    }
-
-    function deleteImage(e: any, image: string) {
-        e.stopPropagation();
-        BdApi.UI.showConfirmationModal('Delete Image', `Are you sure you want to delete ${image}?`, {
-            danger: true,
-            confirmText: 'Delete',
-            onConfirm: () => {
-                fs.unlinkSync(join(__dirname, 'imageFolder', folderPath, image))
-                BdApi.UI.showToast('Successfully deleted image', { type: 'success' });
-
-                // Reload folder
-                updateFolder();
-            }
-        });
     }
 
     return (
@@ -185,12 +170,8 @@ function ImageTab() {
                 <div className="images">
                     {selectedFolder.images.map((image) => {
                         return (
-                            <div className='image' key={image}>
-                                <div className="icon" onClick={(e) => deleteImage(e, image)}
-                                dangerouslySetInnerHTML={{__html: TrashCanOutline}}>
-                                </div>
-                                <ImageComponent name={image} path={folderPath} />
-                            </div>
+                            <ImageComponent name={image} path={folderPath} updateFolder={updateFolder}
+                            key={folderPath+" "+image} />
                         )
                     })}
                 </div>
