@@ -1,4 +1,4 @@
-import { formElements } from "../modules";
+import { formElements } from "../constants";
 
 const React = BdApi.React;
 const FormSwitch = formElements.FormSwitch;

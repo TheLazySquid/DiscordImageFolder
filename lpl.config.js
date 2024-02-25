@@ -4,6 +4,7 @@ const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf-8'));
 import typescript from '@rollup/plugin-typescript';
 import { string } from 'rollup-plugin-string';
 import babel from '@rollup/plugin-babel';
+import arrayBuffer from '@wemap/rollup-plugin-arraybuffer';
 
 export default {
   input: "src/main.ts",
@@ -23,6 +24,7 @@ export default {
         target: "es2022"
       }
     }),
+    arrayBuffer({ include: '**/*.otf' }),
     string({ include: [ '**/*.css', '**/*.svg' ] }),
     babel({ include: '**/*.tsx', babelHelpers: 'bundled' })
   ]

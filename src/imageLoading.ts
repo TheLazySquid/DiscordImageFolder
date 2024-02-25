@@ -1,15 +1,8 @@
-import type { IImgFolder } from './types.js';
+import type { IImgFolder } from './types';
+import { mimeTypes } from './constants';
 
 const fs = require('fs');
 const { join, basename } = require('path');
-
-const mimeTypes: Record<string, string> = {
-    'jpg': 'image/jpeg',
-    'jpeg': 'image/jpeg',
-    'png': 'image/png',
-    'webp': 'image/webp',
-    'avif': 'image/avif'
-}
 
 const imgFolderPath = join(__dirname, 'imageFolder')
 
@@ -117,9 +110,10 @@ export async function uploadImage(folderPath: string) {
         multiSelections: true
     })
 
-    if (!result) return;
+    // @ts-expect-error
+    if (!result || result.canceled) return;
 
-    // @ts-ignore
+    // @ts-expect-error
     for(let file of result.filePaths) {
         let fileName = basename(file);
         let newPath = join(imgFolderPath, folderPath, fileName);
