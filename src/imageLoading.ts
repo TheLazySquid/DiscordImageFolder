@@ -1,5 +1,6 @@
-import type { IImgFolder } from './types';
+import type { IImg, IImgFolder } from './types';
 import { mimeTypes } from './constants';
+import { getLastUsed } from './saveInfo';
 
 const fs = require('fs');
 const { join, basename } = require('path');
@@ -57,7 +58,7 @@ export async function loadFolder(path: string): Promise<IImgFolder> {
                 return;
             } 
 
-            let images: string[] = [];
+            let images: IImg[] = [];
             let folders: string[] = [];
             let pending = files.length;
             if (!pending) {
@@ -80,7 +81,11 @@ export async function loadFolder(path: string): Promise<IImgFolder> {
                         folders.push(file);
                     } else {
                         const ext = file.split('.').at(-1);
-                        if (mimeTypes[ext]) images.push(file);
+                        if (mimeTypes[ext]) images.push({
+                            name: file,
+                            lastModified: stat.mtimeMs,
+                            lastSent: getLastUsed(join(path, file))
+                        });
                     }
 
                     if (!--pending) {

@@ -10,9 +10,11 @@ import FolderOpenOutline from '../../assets/folder-open-outline.svg';
 import FolderArrowLeftOuline from '../../assets/folder-arrow-left-outline.svg';
 // @ts-ignore
 import Pencil from '../../assets/pencil.svg';
+
 import type { IImgFolder } from '../types';
 import { loadFolder, uploadImage } from '../imageLoading';
 import ImageComponent from './ImageComponent';
+import { settings } from './SettingsPanel';
 
 const React = BdApi.React;
 
@@ -29,6 +31,13 @@ function ImageTab() {
 
     function updateFolder() {
         loadFolder(folderPath).then((folder) => {
+            // Sort the images
+            folder.images.sort((a, b) => {
+                if (settings.sortBy === 'lastSent') return b.lastSent - a.lastSent;
+                if (settings.sortBy === 'lastModified') return b.lastModified - a.lastModified;
+                return a.name.localeCompare(b.name);
+            })
+
             setSelectedFolder(folder);
         });
     }
@@ -170,7 +179,7 @@ function ImageTab() {
                 <div className="images">
                     {selectedFolder.images.map((image) => {
                         return (
-                            <ImageComponent name={image} path={folderPath} updateFolder={updateFolder}
+                            <ImageComponent name={image.name} path={folderPath} updateFolder={updateFolder}
                             key={folderPath+" "+image} />
                         )
                     })}
@@ -180,4 +189,4 @@ function ImageTab() {
     )
 }
 
-export default React.memo(ImageTab);
+export default ImageTab;

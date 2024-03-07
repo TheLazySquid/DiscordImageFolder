@@ -6,6 +6,7 @@ import AddCaption from './AddCaption';
 import { settings } from './SettingsPanel';
 // @ts-ignore
 import TrashCanOutline from '../../assets/trash-can-outline.svg';
+import { setLastUsed } from '../saveInfo';
 
 const fs = require('fs');
 const { join } = require('path');
@@ -36,6 +37,8 @@ function imageComponent({ name, path, updateFolder }: { name: string, path: stri
 
     function sendImage() {
         if(!src) return;
+
+        setLastUsed(join(path, name));
 
         if(settings.rerender) {
             sendProcessedImage(name, src);

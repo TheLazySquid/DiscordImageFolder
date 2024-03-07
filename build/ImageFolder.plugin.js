@@ -1,6 +1,6 @@
 /**
  * @name ImageFolder
- * @version 0.2.3
+ * @version 0.3.0
  * @description A BetterDiscord plugin that allows you to save and send images from a folder for easy access
  * @author TheLazySquid
  * @authorId 619261917352951815
@@ -53,7 +53,7 @@ module.exports = class {
 
 var imagePlusOutline = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\"><path d=\"M13 19C13 19.7 13.13 20.37 13.35 21H5C3.9 21 3 20.11 3 19V5C3 3.9 3.9 3 5 3H19C20.11 3 21 3.9 21 5V13.35C20.37 13.13 19.7 13 19 13V5H5V19H13M13.96 12.29L11.21 15.83L9.25 13.47L6.5 17H13.35C13.75 15.88 14.47 14.91 15.4 14.21L13.96 12.29M20 18V15H18V18H15V20H18V23H20V20H23V18H20Z\" /></svg>";
 
-var styles = ".imgFolderBtn {\r\n    aspect-ratio: 1 / 1;\r\n    padding: 7px;\r\n    cursor: pointer;\r\n}\r\n\r\n.imgFolderBtn path {\r\n    fill: var(--interactive-normal);\r\n}\r\n\r\n.imgFolderBtn:hover path {\r\n    fill: var(--interactive-hover);\r\n}\r\n\r\n.imageTab {\r\n    width: 100%;\r\n    height: 100%;\r\n    display: flex;\r\n    flex-direction: column;\r\n}\r\n\r\n.imageTab .icon {\r\n    cursor: pointer;\r\n    width: 35px;\r\n    height: 35px;\r\n}\r\n\r\n.imageTab .icon path {\r\n    fill: hsl(190, 80%, 42%);\r\n}\r\n\r\n.imageTab {\r\n    color: var(--text-normal);\r\n}\r\n\r\n.pathContainer {\r\n    padding-left: 10px;\r\n    padding-right: 15px;\r\n    display: flex;\r\n    align-items: center;\r\n}\r\n\r\n.pathContainer .path {\r\n    flex-grow: 1;\r\n    padding-left: 5px;\r\n    padding-right: 5px;\r\n    overflow: hidden;\r\n    text-overflow: ellipsis;\r\n    max-width: 360px;\r\n    direction: rtl;\r\n    text-align: left;\r\n}\r\n\r\n.imageTab .content {\r\n    flex-grow: 1;\r\n    overflow-y: auto;\r\n    /* hardcoding this because I'm lazy */\r\n    height: 366px;\r\n}\r\n\r\n.imageTab .images {\r\n    display: grid;\r\n    grid-template-columns: 1fr 1fr;\r\n    padding: 7px;\r\n    gap: 7px;\r\n}\r\n\r\n.imageTab img {\r\n    width: 100%;\r\n    height: 100%;\r\n    object-fit: cover;\r\n    cursor: pointer;\r\n}\r\n\r\n.imageTab .folderReturn {\r\n    float: right;\r\n}\r\n\r\n.imageTab .folder {\r\n    display: flex;\r\n    border-radius: 12px;\r\n    background-color: var(--primary-500);\r\n    padding: 6px;\r\n    margin: 7px;\r\n    cursor: pointer;\r\n    transition: background-color 0.2s ease-in-out;\r\n    align-items: center;\r\n    gap: 5px;\r\n}\r\n\r\n.imageTab .folder:hover {\r\n    background-color: var(--primary-430);\r\n}\r\n\r\n.folder .folderName {\r\n    flex-grow: 1;\r\n}\r\n\r\n.if-nameWrap {\r\n    width: 100%;\r\n    display: flex;\r\n    align-items: center;\r\n    justify-content: center;\r\n}\r\n\r\n.if-nameInput {\r\n    width: 90%;\r\n    border-radius: 12px;\r\n    padding: 8px;\r\n}\r\n\r\n.imageTab .image {\r\n    position: relative;\r\n}\r\n\r\n.imageTab .image .icon {\r\n    position: absolute;\r\n    top: 5px;\r\n    right: 5px;\r\n    cursor: pointer;\r\n    opacity: 0;\r\n    transition: opacity 0.2s ease-in-out;\r\n}\r\n\r\n.imageTab .image:hover .icon {\r\n    opacity: 1;\r\n}\r\n\r\n.if-caption-creator {\r\n    display: flex;\r\n    flex-direction: column;\r\n    align-items: center;\r\n    gap: 5px;\r\n}\r\n\r\n.if-caption-creator canvas {\r\n    width: 100%;\r\n}\r\n\r\n.if-caption-settings {\r\n    display: flex;\r\n    align-items: center;\r\n    gap: 5px;\r\n    color: var(--text-normal);\r\n}\r\n\r\n.if-caption-settings .if-caption {\r\n    flex-grow: 1;\r\n}";
+var styles = ".imgFolderBtn {\r\n    aspect-ratio: 1 / 1;\r\n    padding: 7px;\r\n    cursor: pointer;\r\n}\r\n\r\n.imgFolderBtn path {\r\n    fill: var(--interactive-normal);\r\n}\r\n\r\n.imgFolderBtn:hover path {\r\n    fill: var(--interactive-hover);\r\n}\r\n\r\n.imageTab {\r\n    width: 100%;\r\n    height: 100%;\r\n    display: flex;\r\n    flex-direction: column;\r\n}\r\n\r\n.imageTab .icon {\r\n    cursor: pointer;\r\n    width: 35px;\r\n    height: 35px;\r\n}\r\n\r\n.imageTab .icon path {\r\n    fill: hsl(190, 80%, 42%);\r\n}\r\n\r\n.imageTab {\r\n    color: var(--text-normal);\r\n}\r\n\r\n.pathContainer {\r\n    padding-left: 10px;\r\n    padding-right: 15px;\r\n    display: flex;\r\n    align-items: center;\r\n}\r\n\r\n.pathContainer .path {\r\n    flex-grow: 1;\r\n    padding-left: 5px;\r\n    padding-right: 5px;\r\n    overflow: hidden;\r\n    text-overflow: ellipsis;\r\n    max-width: 360px;\r\n    direction: rtl;\r\n    text-align: left;\r\n}\r\n\r\n.imageTab .content {\r\n    flex-grow: 1;\r\n    overflow-y: auto;\r\n    /* hardcoding this because I'm lazy */\r\n    height: 366px;\r\n}\r\n\r\n.imageTab .images {\r\n    display: grid;\r\n    grid-template-columns: 1fr 1fr;\r\n    padding: 7px;\r\n    gap: 7px;\r\n}\r\n\r\n.imageTab img {\r\n    width: 100%;\r\n    height: 100%;\r\n    object-fit: cover;\r\n    cursor: pointer;\r\n}\r\n\r\n.imageTab .folderReturn {\r\n    float: right;\r\n}\r\n\r\n.imageTab .folder {\r\n    display: flex;\r\n    border-radius: 12px;\r\n    background-color: var(--primary-500);\r\n    padding: 6px;\r\n    margin: 7px;\r\n    cursor: pointer;\r\n    transition: background-color 0.2s ease-in-out;\r\n    align-items: center;\r\n    gap: 5px;\r\n}\r\n\r\n.imageTab .folder:hover {\r\n    background-color: var(--primary-430);\r\n}\r\n\r\n.folder .folderName {\r\n    flex-grow: 1;\r\n}\r\n\r\n.if-nameWrap {\r\n    width: 100%;\r\n    display: flex;\r\n    align-items: center;\r\n    justify-content: center;\r\n}\r\n\r\n.if-nameInput {\r\n    width: 90%;\r\n    border-radius: 12px;\r\n    padding: 8px;\r\n}\r\n\r\n.imageTab .image {\r\n    position: relative;\r\n}\r\n\r\n.imageTab .image .icon {\r\n    position: absolute;\r\n    top: 5px;\r\n    right: 5px;\r\n    cursor: pointer;\r\n    opacity: 0;\r\n    transition: opacity 0.2s ease-in-out;\r\n}\r\n\r\n.imageTab .image:hover .icon {\r\n    opacity: 1;\r\n}\r\n\r\n.if-caption-creator {\r\n    display: flex;\r\n    flex-direction: column;\r\n    align-items: center;\r\n    gap: 5px;\r\n}\r\n\r\n.if-caption-creator canvas {\r\n    width: 100%;\r\n}\r\n\r\n.if-caption-settings {\r\n    display: flex;\r\n    align-items: center;\r\n    gap: 5px;\r\n    color: var(--text-normal);\r\n}\r\n\r\n.if-caption-settings .if-caption {\r\n    flex-grow: 1;\r\n}\r\n\r\n.if-settings .if-sel-heading {\r\n    color: var(--header-primary);\r\n}\r\n\r\n.if-settings select {\r\n    width: 100%;\r\n    background: var(--background-secondary);\r\n    color: var(--text-normal);\r\n    border-radius: 3px;\r\n    padding: 5px;\r\n    margin-top: 5px;\r\n    border: none;\r\n}\r\n\r\n.if-settings option {\r\n    /* remove the little border on the left */\r\n    padding: 0;\r\n}";
 
 var FolderPlusOutline = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M13 19C13 19.34 13.04 19.67 13.09 20H4C2.9 20 2 19.11 2 18V6C2 4.89 2.89 4 4 4H10L12 6H20C21.1 6 22 6.89 22 8V13.81C21.39 13.46 20.72 13.22 20 13.09V8H4V18H13.09C13.04 18.33 13 18.66 13 19M20 18V15H18V18H15V20H18V23H20V20H23V18H20Z\" /></svg>";
 
@@ -79,6 +79,23 @@ const mimeTypes = {
     'webp': 'image/webp',
     'avif': 'image/avif'
 };
+
+let lastUsed = {};
+onStart(() => {
+    if (Object.keys(lastUsed).length === 0) {
+        // Load lastUsed from file
+        let found = BdApi.Data.load("ImageFolder", "lastUsed");
+        if (found)
+            lastUsed = JSON.parse(found);
+    }
+});
+function setLastUsed(imgPath) {
+    lastUsed[imgPath] = Date.now();
+    BdApi.Data.save("ImageFolder", "lastUsed", JSON.stringify(lastUsed));
+}
+function getLastUsed(imgPath) {
+    return lastUsed[imgPath] ?? 0; // just say they sent it fifty years ago lol
+}
 
 const fs$4 = require('fs');
 const { join: join$4, basename } = require('path');
@@ -148,7 +165,11 @@ async function loadFolder(path) {
                     else {
                         const ext = file.split('.').at(-1);
                         if (mimeTypes[ext])
-                            images.push(file);
+                            images.push({
+                                name: file,
+                                lastModified: stat.mtimeMs,
+                                lastSent: getLastUsed(join$4(path, file))
+                            });
                     }
                     if (!--pending) {
                         resolve({
@@ -332,18 +353,30 @@ function AddCaption({ name, src, onSubmit }) {
 }
 
 const React$2 = BdApi.React;
-const FormSwitch = formElements.FormSwitch;
+const { FormSwitch } = formElements;
 // this is scuffed but it's easy
 let settings = {
-    rerender: BdApi.Data.load("ImageFolder", "rerender") ?? true
+    rerender: BdApi.Data.load("ImageFolder", "rerender") ?? true,
+    sortBy: BdApi.Data.load("ImageFolder", "sorting") ?? "lastSent"
 };
 function SettingsPanel() {
     const [rerender, setRerender] = React$2.useState(settings.rerender);
-    return (React$2.createElement(FormSwitch, { note: "This will allow you to send AVIFs and sequenced WebPs (albeit without animation) and have them properly embed", value: rerender, onChange: (checked) => {
-            BdApi.Data.save("ImageFolder", "rerender", checked);
-            settings.rerender = checked;
-            setRerender(checked);
-        } }, "Re-render images as PNG before sending"));
+    const [sortBy, setSortBy] = React$2.useState(settings.sortBy);
+    return (React$2.createElement("div", { className: "if-settings" },
+        React$2.createElement(FormSwitch, { note: "This will allow you to send AVIFs and sequenced WebPs (albeit without animation) and have them properly embed", value: rerender, onChange: (checked) => {
+                BdApi.Data.save("ImageFolder", "rerender", checked);
+                settings.rerender = checked;
+                setRerender(checked);
+            } }, "Re-render images as PNG before sending"),
+        React$2.createElement("div", { className: "if-sel-heading" }, "Image Sorting"),
+        React$2.createElement("select", { value: sortBy, onChange: (e) => {
+                BdApi.Data.save("ImageFolder", "sorting", e.target.value);
+                settings.sortBy = e.target.value;
+                setSortBy(e.target.value);
+            } },
+            React$2.createElement("option", { value: "lastSent" }, "Sort by last sent"),
+            React$2.createElement("option", { value: "name" }, "Sort by name"),
+            React$2.createElement("option", { value: "lastModified" }, "Sort by last modified"))));
 }
 
 const React$1 = BdApi.React;
@@ -376,6 +409,7 @@ function imageComponent({ name, path, updateFolder }) {
     function sendImage() {
         if (!src)
             return;
+        setLastUsed(join$2(path, name));
         if (settings.rerender) {
             sendProcessedImage(name, src);
         }
@@ -476,6 +510,14 @@ function ImageTab() {
     });
     function updateFolder() {
         loadFolder(folderPath).then((folder) => {
+            // Sort the images
+            folder.images.sort((a, b) => {
+                if (settings.sortBy === 'lastSent')
+                    return b.lastSent - a.lastSent;
+                if (settings.sortBy === 'lastModified')
+                    return b.lastModified - a.lastModified;
+                return a.name.localeCompare(b.name);
+            });
             setSelectedFolder(folder);
         });
     }
@@ -565,10 +607,9 @@ function ImageTab() {
                         React.createElement("div", { className: "icon", onClick: (e) => deleteFolder(e, folder), dangerouslySetInnerHTML: { __html: TrashCanOutline } }))));
             }),
             React.createElement("div", { className: "images" }, selectedFolder.images.map((image) => {
-                return (React.createElement(imageComponent, { name: image, path: folderPath, updateFolder: updateFolder, key: folderPath + " " + image }));
+                return (React.createElement(imageComponent, { name: image.name, path: folderPath, updateFolder: updateFolder, key: folderPath + " " + image }));
             })))));
 }
-var imageTab = React.memo(ImageTab);
 
 // @ts-ignore
 const fs = require('fs');
@@ -668,7 +709,7 @@ onStart(() => {
             categories.splice(0, 0, newCategory);
             if (activeView === 'image') {
                 // display our content
-                const el = BdApi.React.createElement(imageTab, {});
+                const el = BdApi.React.createElement(ImageTab, {});
                 sections.push(el);
             }
             return returnVal2;
