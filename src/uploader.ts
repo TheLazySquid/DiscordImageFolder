@@ -1,8 +1,17 @@
-import { pickerModule, uploader, cloudUploader } from "./constants";
+import { onStart } from "lazypluginlib";
+import { pickerModule, imgAdder, chatKeyHandlers } from "./constants";
 
 const fs = require('fs')
 const { join } = require('path')
 const Buffer = require('buffer')
+
+let submitMessage: Function;
+
+onStart(() => {
+    BdApi.Patcher.before("ImageFolder", chatKeyHandlers, "default", (_, args: any) => {
+        submitMessage = args[0].submit;
+    })
+})
 
 export function sendRawImage(name: string, path: string) {
     const contents = fs.readFileSync(join(__dirname, 'imageFolder', path, name), {
@@ -44,13 +53,18 @@ export async function sendFile(file: File) {
     if (!channelId) return
     pickerModule.closeExpressionPicker();
     
-    let fileUp = new cloudUploader.CloudUpload({ file: file, isClip: false, isThumbnail: false, platform: 1 }, channelId, false, 0)
-    let uploadOptions = {
-        channelId: channelId,
-        uploads: [fileUp],
+    // add the image to the message
+    imgAdder.addFile({
+        channelId,
         draftType: 0,
-        options: { stickerIds: [] },
-        parsedMessage: { channelId: channelId, content: "", tts: false, invalidEmojis: [] }
-    }
-    await uploader.uploadFiles(uploadOptions)
+        showLargeMessageDialog: false,
+        file: {
+            file,
+            isThumbnail: false,
+            platform: 1
+        }
+    })
+
+    // send the message
+    submitMessage()
 }

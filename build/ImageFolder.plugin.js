@@ -1,6 +1,6 @@
 /**
  * @name ImageFolder
- * @version 0.3.0
+ * @version 0.3.1
  * @description A BetterDiscord plugin that allows you to save and send images from a folder for easy access
  * @author TheLazySquid
  * @authorId 619261917352951815
@@ -70,8 +70,9 @@ const buttonsModule = BdApi.Webpack.getModule((m) => m.type?.toString?.().includ
 const pickerModule = BdApi.Webpack.getByKeys("useExpressionPickerStore");
 // adapted from https://github.com/Zerthox/BetterDiscord-Plugins/blob/master/dist/bd/BetterFolders.plugin.js
 const formElements = BdApi.Webpack.getByKeys('Button', 'Switch', 'Select');
-const cloudUploader = BdApi.Webpack.getModule(module => module.CloudUpload);
-const uploader = BdApi.Webpack.getModule(module => module.default && module.default.uploadFiles).default;
+const imgAdder = BdApi.Webpack.getModule(module => module.default && module.default.addFile).default;
+const chatKeyHandlers = BdApi.Webpack.getModule((exports) => exports.default &&
+    exports.default?.toString?.().includes("hasOpenPlainTextCodeBlock"));
 const mimeTypes = {
     'jpg': 'image/jpeg',
     'jpeg': 'image/jpeg',
@@ -223,6 +224,12 @@ async function uploadImage(folderPath) {
 const fs$3 = require('fs');
 const { join: join$3 } = require('path');
 const Buffer$1 = require('buffer');
+let submitMessage;
+onStart(() => {
+    BdApi.Patcher.before("ImageFolder", chatKeyHandlers, "default", (_, args) => {
+        submitMessage = args[0].submit;
+    });
+});
 function sendRawImage(name, path) {
     const contents = fs$3.readFileSync(join$3(__dirname, 'imageFolder', path, name), {
         encoding: 'binary'
@@ -255,15 +262,19 @@ async function sendFile(file) {
     if (!channelId)
         return;
     pickerModule.closeExpressionPicker();
-    let fileUp = new cloudUploader.CloudUpload({ file: file, isClip: false, isThumbnail: false, platform: 1 }, channelId, false, 0);
-    let uploadOptions = {
-        channelId: channelId,
-        uploads: [fileUp],
+    // add the image to the message
+    imgAdder.addFile({
+        channelId,
         draftType: 0,
-        options: { stickerIds: [] },
-        parsedMessage: { channelId: channelId, content: "", tts: false, invalidEmojis: [] }
-    };
-    await uploader.uploadFiles(uploadOptions);
+        showLargeMessageDialog: false,
+        file: {
+            file,
+            isThumbnail: false,
+            platform: 1
+        }
+    });
+    // send the message
+    submitMessage();
 }
 
 function base64ToBuffer(base64) {
