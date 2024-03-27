@@ -37,7 +37,8 @@ function ImageTab() {
                 if (settings.sortBy === 'lastModified') return b.lastModified - a.lastModified;
                 return a.name.localeCompare(b.name);
             })
-
+            
+            console.log(folderPath, folder)
             setSelectedFolder(folder);
         });
     }
@@ -179,8 +180,7 @@ function ImageTab() {
                 <div className="images">
                     {selectedFolder.images.map((image) => {
                         return (
-                            <ImageComponent name={image.name} path={folderPath} updateFolder={updateFolder}
-                            key={folderPath+" "+image} />
+                            <ImageComponent name={image.name} path={folderPath} updateFolder={updateFolder} />
                         )
                     })}
                 </div>

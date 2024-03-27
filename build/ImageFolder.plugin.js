@@ -1,6 +1,6 @@
 /**
  * @name ImageFolder
- * @version 0.3.1
+ * @version 0.3.2
  * @description A BetterDiscord plugin that allows you to save and send images from a folder for easy access
  * @author TheLazySquid
  * @authorId 619261917352951815
@@ -78,7 +78,8 @@ const mimeTypes = {
     'jpeg': 'image/jpeg',
     'png': 'image/png',
     'webp': 'image/webp',
-    'avif': 'image/avif'
+    'avif': 'image/avif',
+    'gif': 'image/gif',
 };
 
 let lastUsed = {};
@@ -421,7 +422,8 @@ function imageComponent({ name, path, updateFolder }) {
         if (!src)
             return;
         setLastUsed(join$2(path, name));
-        if (settings.rerender) {
+        // don't rerender gifs
+        if (settings.rerender && !name.endsWith('.gif')) {
             sendProcessedImage(name, src);
         }
         else {
@@ -529,6 +531,7 @@ function ImageTab() {
                     return b.lastModified - a.lastModified;
                 return a.name.localeCompare(b.name);
             });
+            console.log(folderPath, folder);
             setSelectedFolder(folder);
         });
     }
@@ -618,7 +621,7 @@ function ImageTab() {
                         React.createElement("div", { className: "icon", onClick: (e) => deleteFolder(e, folder), dangerouslySetInnerHTML: { __html: TrashCanOutline } }))));
             }),
             React.createElement("div", { className: "images" }, selectedFolder.images.map((image) => {
-                return (React.createElement(imageComponent, { name: image.name, path: folderPath, updateFolder: updateFolder, key: folderPath + " " + image }));
+                return (React.createElement(imageComponent, { name: image.name, path: folderPath, updateFolder: updateFolder }));
             })))));
 }
 

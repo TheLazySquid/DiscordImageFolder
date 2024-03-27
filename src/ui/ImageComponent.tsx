@@ -40,7 +40,8 @@ function imageComponent({ name, path, updateFolder }: { name: string, path: stri
 
         setLastUsed(join(path, name));
 
-        if(settings.rerender) {
+        // don't rerender gifs
+        if(settings.rerender && !name.endsWith('.gif')) {
             sendProcessedImage(name, src);
         } else {
             sendRawImage(name, path);
