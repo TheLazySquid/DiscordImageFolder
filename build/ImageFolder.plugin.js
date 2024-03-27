@@ -1,6 +1,6 @@
 /**
  * @name ImageFolder
- * @version 0.3.2
+ * @version 0.3.3
  * @description A BetterDiscord plugin that allows you to save and send images from a folder for easy access
  * @author TheLazySquid
  * @authorId 619261917352951815
@@ -66,7 +66,7 @@ var FolderArrowLeftOuline = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\
 var Pencil = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z\" /></svg>";
 
 const expressionModule = BdApi.Webpack.getModule((m) => m.type?.toString?.().includes("onSelectGIF"));
-const buttonsModule = BdApi.Webpack.getModule((m) => m.type?.toString?.().includes("ChannelTextAreaButtons"));
+const buttonsModule = BdApi.Webpack.getModule((m) => m.type?.toString?.().includes(".default.isSubmitButtonEnabled", ".default.getActiveCommand"));
 const pickerModule = BdApi.Webpack.getByKeys("useExpressionPickerStore");
 // adapted from https://github.com/Zerthox/BetterDiscord-Plugins/blob/master/dist/bd/BetterFolders.plugin.js
 const formElements = BdApi.Webpack.getByKeys('Button', 'Switch', 'Select');
@@ -683,6 +683,7 @@ onStart(() => {
     BdApi.Patcher.after("ImageFolder", buttonsModule, "type", (_, __, returnVal) => {
         if (!returnVal)
             return returnVal;
+        console.log("here");
         let gifIndex = returnVal.props.children.findIndex((child) => child.key == 'gif');
         let type = returnVal.props.children[gifIndex].props.type;
         let div = BdApi.React.createElement('div', {

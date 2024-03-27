@@ -1,5 +1,5 @@
 export const expressionModule = BdApi.Webpack.getModule((m) => m.type?.toString?.().includes("onSelectGIF"))
-export const buttonsModule = BdApi.Webpack.getModule((m) => m.type?.toString?.().includes("ChannelTextAreaButtons"))
+export const buttonsModule = BdApi.Webpack.getModule((m) => m.type?.toString?.().includes(".default.isSubmitButtonEnabled", ".default.getActiveCommand"))
 export const pickerModule = BdApi.Webpack.getByKeys("useExpressionPickerStore")
 // adapted from https://github.com/Zerthox/BetterDiscord-Plugins/blob/master/dist/bd/BetterFolders.plugin.js
 export const formElements = BdApi.Webpack.getByKeys('Button', 'Switch', 'Select')
