@@ -1,6 +1,6 @@
 /**
  * @name ImageFolder
- * @version 0.3.3
+ * @version 0.3.4
  * @description A BetterDiscord plugin that allows you to save and send images from a folder for easy access
  * @author TheLazySquid
  * @authorId 619261917352951815
@@ -612,7 +612,7 @@ function ImageTab() {
             React.createElement("div", { className: "icon", onClick: createImage, dangerouslySetInnerHTML: { __html: imagePlusOutline } })),
         React.createElement("div", { className: "content" },
             selectedFolder.folders.map((folder) => {
-                return (React.createElement("div", { className: "folder", key: folder, onClick: () => intoFolder(folder) },
+                return (React.createElement("div", { className: "folder", key: `${folderPath}${folder}`, onClick: () => intoFolder(folder) },
                     React.createElement("div", { className: "icon", dangerouslySetInnerHTML: { __html: FolderOpenOutline } }),
                     React.createElement("div", { className: "folderName" }, folder),
                     React.createElement("div", { className: "controls" },
@@ -621,7 +621,7 @@ function ImageTab() {
                         React.createElement("div", { className: "icon", onClick: (e) => deleteFolder(e, folder), dangerouslySetInnerHTML: { __html: TrashCanOutline } }))));
             }),
             React.createElement("div", { className: "images" }, selectedFolder.images.map((image) => {
-                return (React.createElement(imageComponent, { name: image.name, path: folderPath, updateFolder: updateFolder }));
+                return (React.createElement(imageComponent, { name: image.name, path: folderPath, updateFolder: updateFolder, key: `${folderPath}${image.name}` }));
             })))));
 }
 
@@ -683,7 +683,6 @@ onStart(() => {
     BdApi.Patcher.after("ImageFolder", buttonsModule, "type", (_, __, returnVal) => {
         if (!returnVal)
             return returnVal;
-        console.log("here");
         let gifIndex = returnVal.props.children.findIndex((child) => child.key == 'gif');
         let type = returnVal.props.children[gifIndex].props.type;
         let div = BdApi.React.createElement('div', {

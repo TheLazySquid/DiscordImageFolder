@@ -155,7 +155,7 @@ function ImageTab() {
             <div className="content">
                 {selectedFolder.folders.map((folder: string) => {
                     return (
-                        <div className="folder" key={folder}
+                        <div className="folder" key={`${folderPath}${folder}`} 
                         onClick={() => intoFolder(folder)}
                         >
                             <div className="icon"
@@ -180,7 +180,8 @@ function ImageTab() {
                 <div className="images">
                     {selectedFolder.images.map((image) => {
                         return (
-                            <ImageComponent name={image.name} path={folderPath} updateFolder={updateFolder} />
+                            <ImageComponent name={image.name} path={folderPath} updateFolder={updateFolder}
+                            key={`${folderPath}${image.name}`} />
                         )
                     })}
                 </div>
