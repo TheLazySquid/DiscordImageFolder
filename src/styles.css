@@ -34,10 +34,17 @@
 }
 
 .pathContainer {
-    padding-left: 10px;
-    padding-right: 15px;
     display: flex;
     align-items: center;
+    width: 100%;
+}
+
+.pathContainer > :first-child {
+    margin-left: 10px;
+}
+
+.pathContainer > :last-child {
+    margin-right: 15px;
 }
 
 .pathContainer .path {
@@ -46,7 +53,6 @@
     padding-right: 5px;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 360px;
     direction: rtl;
     text-align: left;
 }
@@ -60,7 +66,7 @@
 
 .imageTab .images {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
     padding: 7px;
     gap: 7px;
 }
