@@ -1,6 +1,6 @@
 /**
  * @name ImageFolder
- * @version 0.3.5
+ * @version 0.3.6
  * @description A BetterDiscord plugin that allows you to save and send images from a folder for easy access
  * @author TheLazySquid
  * @authorId 619261917352951815
@@ -689,7 +689,7 @@ onStart(() => {
             className: 'imgFolderBtn',
             onClick: () => {
                 // for some reason the expression picker will always close itself before this runs, but that's above my paygrade
-                pickerModule.toggleExpressionPicker('image', type);
+                pickerModule.toggleExpressionPicker('if-image', type);
             },
             dangerouslySetInnerHTML: { __html: imagePlusOutline }
         });
@@ -715,13 +715,13 @@ onStart(() => {
             let newCategory = BdApi.React.createElement(categories[0].type, {
                 id: 'image-folder-tab',
                 "aria-controls": "image-folder-tab-panel",
-                "aria-selected": activeView === 'image',
-                isActive: activeView === 'image',
-                viewType: "image",
+                "aria-selected": activeView === 'if-image',
+                isActive: activeView === 'if-image',
+                viewType: "if-image",
                 children: 'Images'
             });
             categories.splice(0, 0, newCategory);
-            if (activeView === 'image') {
+            if (activeView === 'if-image') {
                 // display our content
                 const el = BdApi.React.createElement(ImageTab, {});
                 sections.push(el);
