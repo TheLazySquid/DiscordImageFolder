@@ -3,7 +3,7 @@ import imagePlusOutline from '../assets/image-plus-outline.svg'
 // @ts-ignore
 import styles from './styles.css'
 import imageTab from './ui/imageTab'
-import { buttonsModule, expressionModule, pickerModule, mimeTypes } from './constants';
+import { buttonsModule, mimeTypes, expressionModule, pickerStore, toggleExpressionPicker } from './constants';
 import { onStart, onStop, setSettingsPanel } from 'lazypluginlib'
 import SettingsPanel from './ui/SettingsPanel.js';
 
@@ -73,7 +73,7 @@ onStart(() => {
             className: 'imgFolderBtn',
             onClick: () => {
                 // for some reason the expression picker will always close itself before this runs, but that's above my paygrade
-                pickerModule.toggleExpressionPicker('if-image', type)
+                toggleExpressionPicker('if-image', type)
             },
             dangerouslySetInnerHTML: { __html: imagePlusOutline }
         })
@@ -98,7 +98,7 @@ onStart(() => {
             let categories = sections?.[0]?.props?.children?.props?.children // react moment
             if (!categories) return
 
-            let activeView = pickerModule.useExpressionPickerStore.getState().activeView
+            let activeView = pickerStore.getState().activeView
 
             // take the react element that categories[0] is based on and make a new one with the props id: 'image-folder-tab'
             let newCategory = BdApi.React.createElement(categories[0].type, {

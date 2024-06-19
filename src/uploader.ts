@@ -1,5 +1,5 @@
 import { onStart } from "lazypluginlib";
-import { pickerModule, imgAdder, chatKeyHandlers } from "./constants";
+import { imgAdder, chatKeyHandlers, closeExpressionPicker } from "./constants";
 
 const fs = require('fs')
 const { join } = require('path')
@@ -8,7 +8,7 @@ const Buffer = require('buffer')
 let submitMessage: Function;
 
 onStart(() => {
-    BdApi.Patcher.before("ImageFolder", chatKeyHandlers, "default", (_, args: any) => {
+    BdApi.Patcher.before("ImageFolder", chatKeyHandlers, Object.keys(chatKeyHandlers)[0], (_, args: any) => {
         submitMessage = args[0].submit;
     })
 })
@@ -51,7 +51,7 @@ export async function sendProcessedImage(name: string, src: string) {
 export async function sendFile(file: File) {
     const channelId = location.href.split('/').pop()
     if (!channelId) return
-    pickerModule.closeExpressionPicker();
+    closeExpressionPicker();
     
     // add the image to the message
     imgAdder.addFile({

@@ -44,8 +44,6 @@ export default function AddCaption({ name, src, onSubmit }) {
     baseImage.src = src;
     baseImage.decode().then(render);
 
-    console.log(baseImage.width, baseImage.height)
-
     const padding = 10;
 
     onSubmit(async () => {

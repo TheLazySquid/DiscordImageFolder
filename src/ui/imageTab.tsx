@@ -38,7 +38,6 @@ function ImageTab() {
                 return a.name.localeCompare(b.name);
             })
             
-            console.log(folderPath, folder)
             setSelectedFolder(folder);
         });
     }

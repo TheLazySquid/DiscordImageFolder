@@ -1,6 +1,6 @@
 /**
  * @name ImageFolder
- * @version 0.3.6
+ * @version 0.4.0
  * @description A BetterDiscord plugin that allows you to save and send images from a folder for easy access
  * @author TheLazySquid
  * @authorId 619261917352951815
@@ -66,13 +66,20 @@ var FolderArrowLeftOuline = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\
 var Pencil = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z\" /></svg>";
 
 const expressionModule = BdApi.Webpack.getModule((m) => m.type?.toString?.().includes("onSelectGIF"));
-const buttonsModule = BdApi.Webpack.getModule((m) => m.type?.toString?.().includes(".default.isSubmitButtonEnabled", ".default.getActiveCommand"));
-const pickerModule = BdApi.Webpack.getByKeys("useExpressionPickerStore");
+const buttonsModule = BdApi.Webpack.getModule((m) => m.type?.toString?.().includes(".isSubmitButtonEnabled", ".getActiveCommand"));
+const pickerModule = BdApi.Webpack.getModule((module) => Object.values(module).some(v => {
+    if (typeof v !== "function")
+        return false;
+    return v.toString().includes("lastActiveView");
+}));
+const toggleExpressionPicker = Object.values(pickerModule).find(v => v.toString().includes("activeView==="));
+const closeExpressionPicker = Object.values(pickerModule).find(v => v.toString().includes("activeView:null"));
+const pickerStore = Object.values(pickerModule).find(v => v.toString().includes(".useReducer"));
 // adapted from https://github.com/Zerthox/BetterDiscord-Plugins/blob/master/dist/bd/BetterFolders.plugin.js
 const formElements = BdApi.Webpack.getByKeys('Button', 'Switch', 'Select');
-const imgAdder = BdApi.Webpack.getModule(module => module.default && module.default.addFile).default;
-const chatKeyHandlers = BdApi.Webpack.getModule((exports) => exports.default &&
-    exports.default?.toString?.().includes("hasOpenPlainTextCodeBlock"));
+const imgAdder = Object.values(BdApi.Webpack.getModule(module => Object.values(module)?.[0]?.addFile))[0];
+const chatKeyHandlers = BdApi.Webpack.getModule((exports) => Object.values(exports)?.[0]?.
+    toString().includes("selectNextCommandOption"));
 const mimeTypes = {
     'jpg': 'image/jpeg',
     'jpeg': 'image/jpeg',
@@ -227,7 +234,7 @@ const { join: join$3 } = require('path');
 const Buffer$1 = require('buffer');
 let submitMessage;
 onStart(() => {
-    BdApi.Patcher.before("ImageFolder", chatKeyHandlers, "default", (_, args) => {
+    BdApi.Patcher.before("ImageFolder", chatKeyHandlers, Object.keys(chatKeyHandlers)[0], (_, args) => {
         submitMessage = args[0].submit;
     });
 });
@@ -262,7 +269,7 @@ async function sendFile(file) {
     const channelId = location.href.split('/').pop();
     if (!channelId)
         return;
-    pickerModule.closeExpressionPicker();
+    closeExpressionPicker();
     // add the image to the message
     imgAdder.addFile({
         channelId,
@@ -322,7 +329,6 @@ function AddCaption({ name, src, onSubmit }) {
     let baseImage = new Image();
     baseImage.src = src;
     baseImage.decode().then(render);
-    console.log(baseImage.width, baseImage.height);
     const padding = 10;
     onSubmit(async () => {
         render();
@@ -531,7 +537,6 @@ function ImageTab() {
                     return b.lastModified - a.lastModified;
                 return a.name.localeCompare(b.name);
             });
-            console.log(folderPath, folder);
             setSelectedFolder(folder);
         });
     }
@@ -689,7 +694,7 @@ onStart(() => {
             className: 'imgFolderBtn',
             onClick: () => {
                 // for some reason the expression picker will always close itself before this runs, but that's above my paygrade
-                pickerModule.toggleExpressionPicker('if-image', type);
+                toggleExpressionPicker('if-image', type);
             },
             dangerouslySetInnerHTML: { __html: imagePlusOutline }
         });
@@ -710,7 +715,7 @@ onStart(() => {
             let categories = sections?.[0]?.props?.children?.props?.children; // react moment
             if (!categories)
                 return;
-            let activeView = pickerModule.useExpressionPickerStore.getState().activeView;
+            let activeView = pickerStore.getState().activeView;
             // take the react element that categories[0] is based on and make a new one with the props id: 'image-folder-tab'
             let newCategory = BdApi.React.createElement(categories[0].type, {
                 id: 'image-folder-tab',
