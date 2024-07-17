@@ -6,6 +6,7 @@ import imageTab from './ui/imageTab'
 import { buttonsModule, mimeTypes, expressionModule, pickerStore, toggleExpressionPicker } from './constants';
 import { onStart, onStop, setSettingsPanel } from 'lazypluginlib'
 import SettingsPanel from './ui/SettingsPanel.js';
+import { settings } from './ui/SettingsPanel.js';
 
 const fs = require('fs')
 const { join } = require('path')
@@ -65,7 +66,7 @@ onStart(() => {
     BdApi.DOM.addStyle("imgFolderStyles", styles)
 
     BdApi.Patcher.after("ImageFolder", buttonsModule, "type", (_, __, returnVal) => {
-        if(!returnVal) return returnVal
+        if(!returnVal || !settings.showButton) return returnVal
         let gifIndex = returnVal.props.children.findIndex((child: any) => child.key == 'gif')
         let type = returnVal.props.children[gifIndex].props.type
 

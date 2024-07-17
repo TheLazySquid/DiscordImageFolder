@@ -1,6 +1,6 @@
 /**
  * @name ImageFolder
- * @version 0.4.0
+ * @version 0.4.1
  * @description A BetterDiscord plugin that allows you to save and send images from a folder for easy access
  * @author TheLazySquid
  * @authorId 619261917352951815
@@ -375,17 +375,24 @@ const { FormSwitch } = formElements;
 // this is scuffed but it's easy
 let settings = {
     rerender: BdApi.Data.load("ImageFolder", "rerender") ?? true,
-    sortBy: BdApi.Data.load("ImageFolder", "sorting") ?? "lastSent"
+    sortBy: BdApi.Data.load("ImageFolder", "sorting") ?? "lastSent",
+    showButton: BdApi.Data.load("ImageFolder", "showButton") ?? true
 };
 function SettingsPanel() {
     const [rerender, setRerender] = React$2.useState(settings.rerender);
     const [sortBy, setSortBy] = React$2.useState(settings.sortBy);
+    const [showButton, setShowButton] = React$2.useState(settings.showButton);
     return (React$2.createElement("div", { className: "if-settings" },
         React$2.createElement(FormSwitch, { note: "This will allow you to send AVIFs and sequenced WebPs (albeit without animation) and have them properly embed", value: rerender, onChange: (checked) => {
                 BdApi.Data.save("ImageFolder", "rerender", checked);
                 settings.rerender = checked;
                 setRerender(checked);
-            } }, "Re-render images as PNG before sending"),
+            } }, "Re-render images as PNG before sending?"),
+        React$2.createElement(FormSwitch, { note: "The image folder tab is still accessible inside of the expression picker menu", value: showButton, onChange: (checked) => {
+                BdApi.Data.save("ImageFolder", "showButton", checked);
+                settings.showButton = checked;
+                setShowButton(checked);
+            } }, "Show image folder button?"),
         React$2.createElement("div", { className: "if-sel-heading" }, "Image Sorting"),
         React$2.createElement("select", { value: sortBy, onChange: (e) => {
                 BdApi.Data.save("ImageFolder", "sorting", e.target.value);
@@ -686,7 +693,7 @@ function patchMenu(returnVal, props) {
 onStart(() => {
     BdApi.DOM.addStyle("imgFolderStyles", styles);
     BdApi.Patcher.after("ImageFolder", buttonsModule, "type", (_, __, returnVal) => {
-        if (!returnVal)
+        if (!returnVal || !settings.showButton)
             return returnVal;
         let gifIndex = returnVal.props.children.findIndex((child) => child.key == 'gif');
         let type = returnVal.props.children[gifIndex].props.type;

@@ -5,14 +5,16 @@ const React = BdApi.React;
 const { FormSwitch } = formElements
 
 // this is scuffed but it's easy
-export let settings: { rerender: boolean, sortBy: sortType } = {
+export let settings: { rerender: boolean, sortBy: sortType, showButton: boolean } = {
     rerender: BdApi.Data.load("ImageFolder", "rerender") ?? true,
-    sortBy: BdApi.Data.load("ImageFolder", "sorting") ?? "lastSent"
+    sortBy: BdApi.Data.load("ImageFolder", "sorting") ?? "lastSent",
+    showButton: BdApi.Data.load("ImageFolder", "showButton") ?? true
 }
 
 export default function SettingsPanel() {
     const [rerender, setRerender] = React.useState(settings.rerender)
     const [sortBy, setSortBy] = React.useState(settings.sortBy)
+    const [showButton, setShowButton] = React.useState(settings.showButton)
 
     return (
         <div className="if-settings">
@@ -25,7 +27,18 @@ export default function SettingsPanel() {
                     setRerender(checked)
                 }}
             >
-                Re-render images as PNG before sending
+                Re-render images as PNG before sending?
+            </FormSwitch>
+            <FormSwitch
+                note="The image folder tab is still accessible inside of the expression picker menu"
+                value={showButton}
+                onChange={(checked: boolean) => {
+                    BdApi.Data.save("ImageFolder", "showButton", checked)
+                    settings.showButton = checked
+                    setShowButton(checked)
+                }}
+            >
+                Show image folder button?
             </FormSwitch>
             <div className="if-sel-heading">
                 Image Sorting
