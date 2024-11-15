@@ -1,6 +1,6 @@
 /**
  * @name ImageFolder
- * @version 0.4.1
+ * @version 0.4.2
  * @description A BetterDiscord plugin that allows you to save and send images from a folder for easy access
  * @author TheLazySquid
  * @authorId 619261917352951815
@@ -74,12 +74,12 @@ const pickerModule = BdApi.Webpack.getModule((module) => Object.values(module).s
 }));
 const toggleExpressionPicker = Object.values(pickerModule).find(v => v.toString().includes("activeView==="));
 const closeExpressionPicker = Object.values(pickerModule).find(v => v.toString().includes("activeView:null"));
-const pickerStore = Object.values(pickerModule).find(v => v.toString().includes(".useReducer"));
+const pickerStore = Object.values(pickerModule).find(v => v.getState);
 // adapted from https://github.com/Zerthox/BetterDiscord-Plugins/blob/master/dist/bd/BetterFolders.plugin.js
 const formElements = BdApi.Webpack.getByKeys('Button', 'Switch', 'Select');
 const imgAdder = Object.values(BdApi.Webpack.getModule(module => Object.values(module)?.[0]?.addFile))[0];
 const chatKeyHandlers = BdApi.Webpack.getModule((exports) => Object.values(exports)?.[0]?.
-    toString().includes("selectNextCommandOption"));
+    toString?.().includes("selectNextCommandOption"));
 const mimeTypes = {
     'jpg': 'image/jpeg',
     'jpeg': 'image/jpeg',
