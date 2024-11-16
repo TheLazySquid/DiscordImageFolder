@@ -67,7 +67,9 @@ onStart(() => {
 
     BdApi.Patcher.after("ImageFolder", buttonsModule, "type", (_, __, returnVal) => {
         if(!returnVal || !settings.showButton) return returnVal
-        let gifIndex = returnVal.props.children.findIndex((child: any) => child.key == 'gif')
+        let gifIndex = returnVal.props.children.findIndex((child: any) => child.key == 'gif');
+        if(gifIndex === -1) return;
+        
         let type = returnVal.props.children[gifIndex].props.type
 
         let div = BdApi.React.createElement('div', {

@@ -1,6 +1,6 @@
 /**
  * @name ImageFolder
- * @version 0.4.2
+ * @version 0.4.3
  * @description A BetterDiscord plugin that allows you to save and send images from a folder for easy access
  * @author TheLazySquid
  * @authorId 619261917352951815
@@ -696,6 +696,8 @@ onStart(() => {
         if (!returnVal || !settings.showButton)
             return returnVal;
         let gifIndex = returnVal.props.children.findIndex((child) => child.key == 'gif');
+        if (gifIndex === -1)
+            return;
         let type = returnVal.props.children[gifIndex].props.type;
         let div = BdApi.React.createElement('div', {
             className: 'imgFolderBtn',
