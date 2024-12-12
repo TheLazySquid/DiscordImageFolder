@@ -3,10 +3,10 @@ const React = BdApi.React;
 import { pathToSrc } from '../imageLoading';
 import { sendProcessedImage, sendRawImage } from '../uploader';
 import AddCaption from './AddCaption';
-import { settings } from './SettingsPanel';
 // @ts-ignore
 import TrashCanOutline from '../../assets/trash-can-outline.svg';
 import { setLastUsed } from '../saveInfo';
+import { settings } from '../settings';
 
 const fs = require('fs');
 const { join } = require('path');

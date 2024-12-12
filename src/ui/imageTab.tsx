@@ -14,7 +14,7 @@ import Pencil from '../../assets/pencil.svg';
 import type { IImgFolder } from '../types';
 import { loadFolder, uploadImage } from '../imageLoading';
 import ImageComponent from './ImageComponent';
-import { settings } from './SettingsPanel';
+import { settings } from '../settings';
 
 const React = BdApi.React;
 

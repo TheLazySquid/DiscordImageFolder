@@ -153,22 +153,3 @@
 .if-caption-settings .if-caption {
     flex-grow: 1;
 }
-
-.if-settings .if-sel-heading {
-    color: var(--header-primary);
-}
-
-.if-settings select {
-    width: 100%;
-    background: var(--background-secondary);
-    color: var(--text-normal);
-    border-radius: 3px;
-    padding: 5px;
-    margin-top: 5px;
-    border: none;
-}
-
-.if-settings option {
-    /* remove the little border on the left */
-    padding: 0;
-}

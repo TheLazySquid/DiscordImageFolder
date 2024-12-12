@@ -7,8 +7,6 @@ const pickerModule = BdApi.Webpack.getModule((module) => Object.values(module).s
 export const toggleExpressionPicker = Object.values<any>(pickerModule).find(v => v.toString().includes("activeView==="))
 export const closeExpressionPicker = Object.values<any>(pickerModule).find(v => v.toString().includes("activeView:null"))
 export const pickerStore = Object.values<any>(pickerModule).find(v => v.getState)
-// adapted from https://github.com/Zerthox/BetterDiscord-Plugins/blob/master/dist/bd/BetterFolders.plugin.js
-export const formElements = BdApi.Webpack.getByKeys('Button', 'Switch', 'Select')
 export const imgAdder: any = Object.values(BdApi.Webpack.getModule(module => Object.values<any>(module)?.[0]?.addFile))[0];
 export const chatKeyHandlers = BdApi.Webpack.getModule((exports) => Object.values<any>(exports)?.[0]?.
     toString?.().includes("selectNextCommandOption"))

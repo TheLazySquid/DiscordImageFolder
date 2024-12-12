@@ -4,15 +4,14 @@ import imagePlusOutline from '../assets/image-plus-outline.svg'
 import styles from './styles.css'
 import imageTab from './ui/imageTab'
 import { buttonsModule, mimeTypes, expressionModule, pickerStore, toggleExpressionPicker } from './constants';
-import { onStart, onStop, setSettingsPanel } from 'lazypluginlib'
-import SettingsPanel from './ui/SettingsPanel.js';
-import { settings } from './ui/SettingsPanel.js';
+import { onStart, onStop } from 'lazypluginlib'
+import { settings, setup } from './settings';
+
+setup();
 
 const fs = require('fs')
 const { join } = require('path')
 const Buffer = require('buffer')
-
-setSettingsPanel(BdApi.React.createElement(SettingsPanel))
 
 function patchMenu(returnVal: any, props: any) {
     if(!returnVal || !props?.attachment) return returnVal
