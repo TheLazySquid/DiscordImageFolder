@@ -1,3 +1,6 @@
+> [!CAUTION]
+> This plugin has been moved to my [new plugin repository](https://github.com/TheLazySquid/BetterDiscordPlugins/tree/main/plugins/ImageFolder). Changes will no longer be reflected here, and this repository may be removed in the future.
+
 # ImageFolder
 
 This is a [BetterDiscord](https://betterdiscord.app/) plugin that adds a new tab to the expression picker window that makes it easy to store and send images.
